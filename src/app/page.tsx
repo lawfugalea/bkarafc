@@ -136,13 +136,13 @@ export default function Home() {
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative bg-background overflow-hidden min-h-[580px] flex items-center">
         <div
-          className="absolute inset-y-0 right-0 w-1/2 md:w-2/5"
-          style={{
-            background:
-              "linear-gradient(to right, rgba(208,2,27,0.07) 0%, rgba(208,2,27,0.07) 33.33%, rgba(245,166,35,0.07) 33.33%, rgba(245,166,35,0.07) 66.67%, rgba(208,2,27,0.07) 66.67%, rgba(208,2,27,0.07) 100%)",
-          }}
+          className="absolute inset-y-0 right-0 w-1/2 md:w-2/5 flex"
           aria-hidden="true"
-        />
+        >
+          <div style={{ flex: 3, background: "#D0021B", opacity: 0.07 }} />
+          <div style={{ flex: 2, background: "#F5A623", opacity: 0.09 }} />
+          <div style={{ flex: 1, background: "#D0021B", opacity: 0.05 }} />
+        </div>
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 w-full">
           <div className="flex items-center gap-2.5 mb-6">
             <span className="relative flex h-2.5 w-2.5">

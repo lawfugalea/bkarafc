@@ -159,7 +159,7 @@ export default function Navbar() {
         className="h-[4px] w-full"
         style={{
           background:
-            "linear-gradient(to right, #D0021B 0%, #D0021B 23.08%, #F5A623 23.08%, #F5A623 30.77%, #D0021B 30.77%, #D0021B 46.15%, #F5A623 46.15%, #F5A623 53.85%, #0d0d0d 53.85%, #0d0d0d 100%)",
+            "linear-gradient(to right, #D0021B 45%, #F5A623 45%, #F5A623 50%, #D0021B 50%, #D0021B 70%, #F5A623 70%, #F5A623 75%, #080808 75%)",
         }}
       />
     </header>
