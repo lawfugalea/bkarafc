@@ -8,6 +8,7 @@ export default defineConfig({
   title: 'Birkirkara FC',
   projectId: 'i4fmomt4',
   dataset: 'production',
+  basePath: '/studio',
   plugins: [structureTool(), visionTool()],
   schema: {types: schemaTypes},
 })
