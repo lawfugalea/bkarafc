@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
@@ -38,7 +39,7 @@ function XIcon() {
   );
 }
 
-function Crest({ size = 44 }: { size?: number }) {
+function CrestFallback({ size = 44 }: { size?: number }) {
   return (
     <svg
       viewBox="0 0 50 58"
@@ -92,7 +93,14 @@ function HamburgerIcon({ open }: { open: boolean }) {
   );
 }
 
-export default function Navbar() {
+interface NavbarProps {
+  crestUrl?: string;
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
+}
+
+export default function Navbar({ crestUrl, facebook, instagram, twitter }: NavbarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -107,7 +115,7 @@ export default function Navbar() {
         <span className="tracking-wide">2024/25 Season · Maltese Premier League</span>
         <div className="flex items-center gap-5">
           <a
-            href="https://facebook.com"
+            href={facebook || "#"}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Facebook"
@@ -116,7 +124,7 @@ export default function Navbar() {
             <FacebookIcon />
           </a>
           <a
-            href="https://instagram.com"
+            href={instagram || "#"}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
@@ -125,7 +133,7 @@ export default function Navbar() {
             <InstagramIcon />
           </a>
           <a
-            href="https://x.com"
+            href={twitter || "#"}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="X (formerly Twitter)"
@@ -139,7 +147,11 @@ export default function Navbar() {
       {/* Main nav */}
       <nav className="bg-background border-b border-white/10 px-6 py-3 flex items-center justify-between">
         <Link href="/" onClick={close} className="flex items-center gap-3 shrink-0">
-          <Crest size={44} />
+          {crestUrl ? (
+            <Image src={crestUrl} width={32} height={38} alt="Club Crest" />
+          ) : (
+            <CrestFallback size={44} />
+          )}
           <div>
             <div className="font-display font-extrabold italic text-white text-xl leading-tight">
               Birkirkara FC

@@ -3,5 +3,6 @@ import {fixture} from './fixture'
 import {player} from './player'
 import {membership} from './membership'
 import {sponsor} from './sponsor'
+import {siteSettings} from './siteSettings'
 
-export const schemaTypes = [post, fixture, player, membership, sponsor]
+export const schemaTypes = [post, fixture, player, membership, sponsor, siteSettings]

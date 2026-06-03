@@ -24,3 +24,8 @@ export const squadPreviewQuery = groq`
   *[_type == "player"] | order(number asc)[0...4]{
     name, number, position, photo
   }`
+
+export const siteSettingsQuery = groq`
+  *[_type == "siteSettings"][0]{
+    clubName, crest, founded, facebook, instagram, twitter
+  }`
