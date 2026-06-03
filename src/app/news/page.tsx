@@ -1,5 +1,7 @@
 import Footer from "@/components/Footer";
 
+export const revalidate = 60;
+
 const newsItems = [
   { id: 1, category: "Match Report", title: "Stripes secure dramatic late winner against Valletta", excerpt: "A stoppage-time goal from captain Jhonnattan secured all three points in a pulsating derby clash at the National Stadium.", date: "2 Jun 2025" },
   { id: 2, category: "Transfer", title: "Club signs midfielder on season-long loan", excerpt: "Birkirkara FC have completed the signing of a highly rated central midfielder on a season-long loan arrangement.", date: "1 Jun 2025" },

@@ -1,5 +1,7 @@
 import Footer from "@/components/Footer";
 
+export const revalidate = 60;
+
 const upcoming = [
   { opponent: "Hibernians FC", home: true, date: "Sat 7 Jun 2025", time: "19:30", venue: "National Stadium, Ta' Qali", competition: "Premier League" },
   { opponent: "Ħamrun Spartans", home: false, date: "Sat 14 Jun 2025", time: "19:30", venue: "Centenary Stadium, Ta' Qali", competition: "Premier League" },

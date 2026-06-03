@@ -1,5 +1,7 @@
 import Footer from "@/components/Footer";
 
+export const revalidate = 60;
+
 const positions = [
   {
     label: "Goalkeepers",

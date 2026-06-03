@@ -1,5 +1,7 @@
 import Footer from "@/components/Footer";
 import { client } from "@/lib/sanity.client";
+
+export const revalidate = 60;
 import {
   featuredPostQuery,
   recentPostsQuery,
