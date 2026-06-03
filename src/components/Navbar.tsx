@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const navLinks = [
   { label: "News", href: "/news" },
@@ -72,13 +73,37 @@ function Crest({ size = 44 }: { size?: number }) {
   );
 }
 
+function HamburgerIcon({ open }: { open: boolean }) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      {open ? (
+        <>
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </>
+      ) : (
+        <>
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 export default function Navbar() {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  function close() {
+    setMenuOpen(false);
+  }
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Topbar */}
-      <div className="bg-surface border-b border-white/10 px-6 py-1.5 flex items-center justify-between text-xs text-white/50">
+      {/* Topbar — hidden on mobile */}
+      <div className="hidden md:flex bg-surface border-b border-white/10 px-6 py-1.5 items-center justify-between text-xs text-white/50">
         <span className="tracking-wide">2024/25 Season · Maltese Premier League</span>
         <div className="flex items-center gap-5">
           <a
@@ -113,7 +138,7 @@ export default function Navbar() {
 
       {/* Main nav */}
       <nav className="bg-background border-b border-white/10 px-6 py-3 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 shrink-0">
+        <Link href="/" onClick={close} className="flex items-center gap-3 shrink-0">
           <Crest size={44} />
           <div>
             <div className="font-display font-extrabold italic text-white text-xl leading-tight">
@@ -125,6 +150,7 @@ export default function Navbar() {
           </div>
         </Link>
 
+        {/* Desktop links */}
         <div className="hidden md:flex items-center gap-7">
           {navLinks.map((link) => {
             const isActive =
@@ -152,7 +178,49 @@ export default function Navbar() {
             Memberships
           </Link>
         </div>
+
+        {/* Hamburger — mobile only */}
+        <button
+          className="md:hidden flex items-center justify-center"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <HamburgerIcon open={menuOpen} />
+        </button>
       </nav>
+
+      {/* Mobile dropdown */}
+      {menuOpen && (
+        <div className="md:hidden bg-background border-b border-white/10">
+          {navLinks.map((link) => {
+            const isActive =
+              pathname === link.href || pathname.startsWith(link.href + "/");
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={close}
+                className={
+                  "block px-6 py-4 text-sm font-medium uppercase tracking-wider border-b border-white/5 transition-colors " +
+                  (isActive ? "text-white" : "text-white/60 hover:text-white")
+                }
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+          <div className="px-6 py-4">
+            <Link
+              href="/memberships"
+              onClick={close}
+              className="block w-full bg-bka-red hover:bg-[#b00217] text-white text-sm font-semibold uppercase tracking-wider px-5 py-3 text-center transition-colors"
+            >
+              Memberships
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Stripe bar */}
       <div
