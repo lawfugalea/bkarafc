@@ -1,4 +1,89 @@
-const nextMatch = {
+import Footer from "@/components/Footer";
+import { client } from "@/lib/sanity.client";
+import {
+  featuredPostQuery,
+  recentPostsQuery,
+  nextFixtureQuery,
+  recentResultsQuery,
+  squadPreviewQuery,
+} from "@/lib/queries";
+
+// ── Sanity field types ────────────────────────────────────────────────────────
+
+interface SanityPost {
+  title: string;
+  slug: { current: string };
+  category: string;
+  excerpt?: string;
+  publishedAt: string;
+}
+
+interface SanityFixture {
+  homeTeam: string;
+  awayTeam: string;
+  competition: string;
+  kickoff: string;
+  venue?: string;
+  homeScore?: number;
+  awayScore?: number;
+}
+
+interface SanityPlayer {
+  name: string;
+  number: number;
+  position: string;
+}
+
+// ── Formatting helpers ────────────────────────────────────────────────────────
+
+const catLabel: Record<string, string> = {
+  "match-report": "Match Report",
+  "club-news": "Club",
+  "transfer": "Transfer",
+  "academy": "Academy",
+  "interview": "Interview",
+};
+
+const compLabel: Record<string, string> = {
+  MPL: "Premier League",
+  "FA Trophy": "FA Trophy",
+  "Super Cup": "Super Cup",
+  "Friendly": "Friendly",
+};
+
+const posAbbr: Record<string, string> = {
+  Goalkeeper: "GK",
+  Defender: "DEF",
+  Midfielder: "MID",
+  Forward: "FWD",
+};
+
+const BKA = "Birkirkara FC";
+
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function fmtKickoff(iso: string) {
+  const d = new Date(iso);
+  return {
+    date: d.toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }),
+    time: d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+  };
+}
+
+// ── Fallbacks (used when Sanity returns empty) ────────────────────────────────
+
+const fallbackNextMatch = {
   home: "Birkirkara FC",
   away: "Hibernians FC",
   date: "Sat 7 Jun 2025",
@@ -6,57 +91,34 @@ const nextMatch = {
   venue: "National Stadium, Ta' Qali",
 };
 
-const newsItems = [
-  {
-    id: 1,
-    category: "Match Report",
-    title: "Stripes secure dramatic late winner against Valletta",
-    excerpt:
-      "A stoppage-time goal from captain Jhonnattan secured all three points in a pulsating derby clash at the National Stadium.",
-    date: "2 Jun 2025",
-  },
-  {
-    id: 2,
-    category: "Transfer",
-    title: "Club signs midfielder on season-long loan",
-    date: "1 Jun 2025",
-  },
-  {
-    id: 3,
-    category: "Academy",
-    title: "U17s reach national cup semi-final",
-    date: "31 May 2025",
-  },
-  {
-    id: 4,
-    category: "Club",
-    title: "Annual general meeting scheduled for July",
-    date: "30 May 2025",
-  },
-  {
-    id: 5,
-    category: "Match Report",
-    title: "Draw away to Floriana maintains top-four spot",
-    date: "28 May 2025",
-  },
+const fallbackFeatured = {
+  href: "/news",
+  category: "Match Report",
+  title: "Stripes secure dramatic late winner against Valletta",
+  excerpt:
+    "A stoppage-time goal from captain Jhonnattan secured all three points in a pulsating derby clash at the National Stadium.",
+  date: "2 Jun 2025",
+};
+
+const fallbackSmallCards = [
+  { href: "/news", category: "Transfer", title: "Club signs midfielder on season-long loan", date: "1 Jun 2025" },
+  { href: "/news", category: "Academy", title: "U17s reach national cup semi-final", date: "31 May 2025" },
+  { href: "/news", category: "Club", title: "Annual general meeting scheduled for July", date: "30 May 2025" },
+  { href: "/news", category: "Match Report", title: "Draw away to Floriana maintains top-four spot", date: "28 May 2025" },
 ];
 
-const results = [
+const fallbackResults = [
   { opponent: "Valletta FC", home: true, goalsFor: 2, goalsAgainst: 1, result: "W" as const, competition: "Premier League", date: "2 Jun 2025" },
   { opponent: "Ħamrun Spartans", home: false, goalsFor: 1, goalsAgainst: 1, result: "D" as const, competition: "Premier League", date: "25 May 2025" },
   { opponent: "Floriana FC", home: false, goalsFor: 0, goalsAgainst: 0, result: "D" as const, competition: "Premier League", date: "18 May 2025" },
   { opponent: "Sliema Wanderers", home: true, goalsFor: 3, goalsAgainst: 0, result: "W" as const, competition: "Premier League", date: "11 May 2025" },
 ];
 
-const squad = [
+const fallbackSquad = [
   { number: 1, name: "Justin Haber", position: "GK" },
   { number: 4, name: "Ivan Woods", position: "DEF" },
   { number: 9, name: "Jhonnattan", position: "FWD" },
   { number: 10, name: "Paul Fenech", position: "MID" },
-  { number: 7, name: "Ryan Darmanin", position: "MID" },
-  { number: 11, name: "Edward Herrera", position: "FWD" },
-  { number: 3, name: "Diego Aguiar", position: "DEF" },
-  { number: 6, name: "Robert Muscat", position: "MID" },
 ];
 
 const resultBadgeClass = {
@@ -65,72 +127,81 @@ const resultBadgeClass = {
   L: "bg-red-700 text-white",
 } as const;
 
-const footerLinks = [
-  {
-    heading: "Club",
-    links: [
-      { label: "History", href: "/club/history" },
-      { label: "Board", href: "/club/board" },
-      { label: "Stadium", href: "/club/stadium" },
-      { label: "Partners", href: "/club/partners" },
-    ],
-  },
-  {
-    heading: "Football",
-    links: [
-      { label: "First Team", href: "/squad" },
-      { label: "Fixtures", href: "/fixtures" },
-      { label: "Results", href: "/results" },
-      { label: "Academy", href: "/academy" },
-    ],
-  },
-  {
-    heading: "Fan Zone",
-    links: [
-      { label: "News", href: "/news" },
-      { label: "Gallery", href: "/gallery" },
-      { label: "Memberships", href: "/memberships" },
-      { label: "Shop", href: "/shop" },
-    ],
-  },
-];
+// ── Page ──────────────────────────────────────────────────────────────────────
 
-function FooterCrest() {
-  return (
-    <svg
-      viewBox="0 0 50 58"
-      width="48"
-      height="56"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <defs>
-        <clipPath id="footer-shield-clip">
-          <path d="M25 2 L48 10 L48 36 L25 56 L2 36 L2 10 Z" />
-        </clipPath>
-      </defs>
-      <path d="M25 2 L48 10 L48 36 L25 56 L2 36 L2 10 Z" fill="#D0021B" stroke="#F5A623" strokeWidth="1.5" />
-      <g clipPath="url(#footer-shield-clip)">
-        <rect x="6" y="0" width="8" height="58" fill="white" opacity="0.2" />
-        <rect x="22" y="0" width="8" height="58" fill="white" opacity="0.2" />
-        <rect x="38" y="0" width="8" height="58" fill="white" opacity="0.2" />
-      </g>
-      <text
-        x="25"
-        y="36"
-        textAnchor="middle"
-        fill="white"
-        fontFamily="Arial, sans-serif"
-        fontWeight="bold"
-        fontSize="13"
-      >
-        BK
-      </text>
-    </svg>
-  );
-}
+export default async function Home() {
+  const [featuredPost, recentPosts, nextFixture, recentResults, squadPlayers] =
+    await Promise.all([
+      client.fetch<SanityPost | null>(featuredPostQuery).catch(() => null),
+      client.fetch<SanityPost[]>(recentPostsQuery).catch(() => []),
+      client.fetch<SanityFixture | null>(nextFixtureQuery).catch(() => null),
+      client.fetch<SanityFixture[]>(recentResultsQuery).catch(() => []),
+      client.fetch<SanityPlayer[]>(squadPreviewQuery).catch(() => []),
+    ]);
 
-export default function Home() {
+  // Normalize: next match
+  const nextMatch = nextFixture
+    ? {
+        home: nextFixture.homeTeam,
+        away: nextFixture.awayTeam,
+        venue: nextFixture.venue ?? "",
+        ...fmtKickoff(nextFixture.kickoff),
+      }
+    : fallbackNextMatch;
+
+  // Normalize: featured news card
+  const featuredCard = featuredPost
+    ? {
+        href: `/news/${featuredPost.slug.current}`,
+        category: catLabel[featuredPost.category] ?? featuredPost.category,
+        title: featuredPost.title,
+        excerpt: featuredPost.excerpt ?? "",
+        date: fmtDate(featuredPost.publishedAt),
+      }
+    : fallbackFeatured;
+
+  // Normalize: small news cards
+  const smallCards =
+    recentPosts.length > 0
+      ? recentPosts.map((p) => ({
+          href: `/news/${p.slug.current}`,
+          category: catLabel[p.category] ?? p.category,
+          title: p.title,
+          date: fmtDate(p.publishedAt),
+        }))
+      : fallbackSmallCards;
+
+  // Normalize: results
+  const results =
+    recentResults.length > 0
+      ? recentResults.map((r) => {
+          const bkaHome = r.homeTeam === BKA;
+          const goalsFor = (bkaHome ? r.homeScore : r.awayScore) ?? 0;
+          const goalsAgainst = (bkaHome ? r.awayScore : r.homeScore) ?? 0;
+          const result: "W" | "D" | "L" =
+            goalsFor > goalsAgainst ? "W" : goalsFor === goalsAgainst ? "D" : "L";
+          return {
+            opponent: bkaHome ? r.awayTeam : r.homeTeam,
+            home: bkaHome,
+            goalsFor,
+            goalsAgainst,
+            result,
+            competition: compLabel[r.competition] ?? r.competition,
+            date: fmtDate(r.kickoff),
+          };
+        })
+      : fallbackResults;
+
+  // Normalize: squad preview
+  const squad =
+    squadPlayers.length > 0
+      ? squadPlayers.slice(0, 4).map((p) => ({
+          number: p.number,
+          name: p.name,
+          position: posAbbr[p.position] ?? p.position,
+        }))
+      : fallbackSquad;
+
   return (
     <main className="flex-1">
       {/* ── Hero ─────────────────────────────────────────────── */}
@@ -214,7 +285,7 @@ export default function Home() {
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Featured card — spans 2 columns */}
-          <a href="/news/1" className="lg:col-span-2 bg-surface group block">
+          <a href={featuredCard.href} className="lg:col-span-2 bg-surface group block">
             <div className="aspect-video bg-[#1c1c1c] flex items-center justify-center">
               <span className="text-white/15 text-xs uppercase tracking-widest">
                 Image
@@ -222,22 +293,22 @@ export default function Home() {
             </div>
             <div className="p-6">
               <span className="text-bka-red text-xs font-semibold uppercase tracking-wider">
-                {newsItems[0].category}
+                {featuredCard.category}
               </span>
               <h3 className="font-display font-bold italic text-white text-2xl mt-2 leading-tight group-hover:text-bka-gold transition-colors">
-                {newsItems[0].title}
+                {featuredCard.title}
               </h3>
               <p className="text-white/50 text-sm mt-3 leading-relaxed line-clamp-2">
-                {newsItems[0].excerpt}
+                {featuredCard.excerpt}
               </p>
-              <div className="text-white/30 text-xs mt-4">{newsItems[0].date}</div>
+              <div className="text-white/30 text-xs mt-4">{featuredCard.date}</div>
             </div>
           </a>
 
           {/* 2×2 smaller cards */}
           <div className="grid grid-cols-2 lg:grid-cols-2 gap-4">
-            {newsItems.slice(1, 5).map((item) => (
-              <a key={item.id} href={`/news/${item.id}`} className="bg-surface p-4 group block">
+            {smallCards.slice(0, 4).map((item) => (
+              <a key={item.href + item.title} href={item.href} className="bg-surface p-4 group block">
                 <span className="text-bka-red text-[10px] font-semibold uppercase tracking-wider">
                   {item.category}
                 </span>
@@ -292,7 +363,7 @@ export default function Home() {
           </a>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {squad.slice(0, 4).map((player) => (
+          {squad.map((player) => (
             <a key={player.number} href="/squad" className="bg-surface group block relative overflow-hidden">
               <div className="aspect-[3/4] bg-[#1c1c1c] flex items-end justify-center pb-4 relative">
                 <span className="text-white/10 text-xs uppercase tracking-widest absolute top-1/2 -translate-y-1/2">
@@ -337,56 +408,7 @@ export default function Home() {
         </a>
       </section>
 
-      {/* ── Footer ───────────────────────────────────────────── */}
-      <footer className="bg-surface border-t border-white/10 pt-12 pb-6">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-            {/* Club identity */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <FooterCrest />
-                <div>
-                  <div className="font-display font-extrabold italic text-white text-lg leading-tight">
-                    Birkirkara FC
-                  </div>
-                  <div className="text-[10px] text-white/40 tracking-widest uppercase">
-                    Est. 1950 · Malta
-                  </div>
-                </div>
-              </div>
-              <p className="text-white/40 text-xs leading-relaxed">
-                Maltese Premier League football club based in Birkirkara, Malta. The Stripes.
-              </p>
-            </div>
-
-            {/* Link columns */}
-            {footerLinks.map((col) => (
-              <div key={col.heading}>
-                <h3 className="font-display font-bold italic text-bka-gold uppercase text-sm tracking-widest mb-4">
-                  {col.heading}
-                </h3>
-                <ul className="space-y-2.5">
-                  {col.links.map((link) => (
-                    <li key={link.href}>
-                      <a
-                        href={link.href}
-                        className="text-white/50 text-sm hover:text-white transition-colors"
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-white/30 text-xs">
-            <span>© {new Date().getFullYear()} Birkirkara FC. All rights reserved.</span>
-            <span>Maltese Premier League · Malta</span>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
