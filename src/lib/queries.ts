@@ -36,6 +36,16 @@ export const recentResultsQuery = groq`
     homeTeam, awayTeam, homeScore, awayScore, competition, kickoff
   }`
 
+export const allUpcomingFixturesQuery = groq`
+  *[_type == "fixture" && status == "upcoming"] | order(kickoff asc){
+    homeTeam, awayTeam, competition, kickoff, venue
+  }`
+
+export const allResultsQuery = groq`
+  *[_type == "fixture" && status == "finished"] | order(kickoff desc){
+    homeTeam, awayTeam, homeScore, awayScore, competition, kickoff
+  }`
+
 export const squadPreviewQuery = groq`
   *[_type == "player"] | order(number asc)[0...4]{
     name, number, position, photo
