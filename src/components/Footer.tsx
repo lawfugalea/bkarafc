@@ -1,4 +1,5 @@
-import { client } from "@/lib/sanity.client";
+import Image from "next/image";
+import { client, urlFor } from "@/lib/sanity.client";
 import { siteSettingsQuery } from "@/lib/queries";
 
 const footerLinks = [
@@ -66,6 +67,7 @@ export default async function Footer() {
   const clubName = settings?.clubName ?? "Birkirkara FC";
   const clubTagline = settings?.clubTagline ?? "Est. 1950 · Malta";
   const description = settings?.footerDescription ?? "Maltese Premier League football club based in Birkirkara, Malta. The Stripes.";
+  const crestUrl = settings?.crest ? urlFor(settings.crest).width(96).height(112).url() : null;
 
   return (
     <footer className="bg-surface border-t border-white/10 pt-12 pb-6">
@@ -73,7 +75,11 @@ export default async function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <FooterCrest />
+              {crestUrl ? (
+                <Image src={crestUrl} width={48} height={56} alt="Club Crest" />
+              ) : (
+                <FooterCrest />
+              )}
               <div>
                 <div className="font-display font-extrabold italic text-white text-lg leading-tight">
                   {clubName}
