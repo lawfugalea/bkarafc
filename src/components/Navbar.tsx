@@ -95,13 +95,15 @@ function HamburgerIcon({ open }: { open: boolean }) {
 
 interface NavbarProps {
   crestUrl?: string;
+  clubName?: string;
+  clubTagline?: string;
   seasonLabel?: string;
   facebook?: string;
   instagram?: string;
   twitter?: string;
 }
 
-export default function Navbar({ crestUrl, seasonLabel, facebook, instagram, twitter }: NavbarProps) {
+export default function Navbar({ crestUrl, clubName, clubTagline, seasonLabel, facebook, instagram, twitter }: NavbarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -155,10 +157,10 @@ export default function Navbar({ crestUrl, seasonLabel, facebook, instagram, twi
           )}
           <div>
             <div className="font-display font-extrabold italic text-white text-xl leading-tight">
-              Birkirkara FC
+              {clubName ?? "Birkirkara FC"}
             </div>
             <div className="text-[10px] text-white/40 tracking-widest uppercase">
-              Est. 1950 · Malta
+              {clubTagline ?? "Est. 1950 · Malta"}
             </div>
           </div>
         </Link>

@@ -63,7 +63,9 @@ export const playerByNumberQuery = groq`
 
 export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0]{
-    clubName, crest, founded, seasonLabel, facebook, instagram, twitter
+    clubName, clubTagline, crest, founded, seasonLabel,
+    facebook, instagram, twitter,
+    footerDescription, membershipsPageSubtitle
   }`
 
 export const clubPageQuery = groq`

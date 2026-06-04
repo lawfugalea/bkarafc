@@ -1,29 +1,26 @@
+import { client } from "@/lib/sanity.client";
+import { siteSettingsQuery } from "@/lib/queries";
+
 const footerLinks = [
   {
     heading: "Club",
     links: [
-      { label: "History", href: "/club/history" },
-      { label: "Board", href: "/club/board" },
-      { label: "Stadium", href: "/club/stadium" },
-      { label: "Partners", href: "/club/partners" },
+      { label: "About", href: "/club" },
+      { label: "Squad", href: "/squad" },
+      { label: "Gallery", href: "/gallery" },
     ],
   },
   {
     heading: "Football",
     links: [
-      { label: "First Team", href: "/squad" },
-      { label: "Fixtures", href: "/fixtures" },
-      { label: "Results", href: "/results" },
-      { label: "Academy", href: "/academy" },
+      { label: "Fixtures & Results", href: "/fixtures" },
+      { label: "News", href: "/news" },
     ],
   },
   {
     heading: "Fan Zone",
     links: [
-      { label: "News", href: "/news" },
-      { label: "Gallery", href: "/gallery" },
       { label: "Memberships", href: "/memberships" },
-      { label: "Shop", href: "/shop" },
     ],
   },
 ];
@@ -63,7 +60,13 @@ function FooterCrest() {
   );
 }
 
-export default function Footer() {
+export default async function Footer() {
+  const settings = await client.fetch(siteSettingsQuery).catch(() => null);
+
+  const clubName = settings?.clubName ?? "Birkirkara FC";
+  const clubTagline = settings?.clubTagline ?? "Est. 1950 · Malta";
+  const description = settings?.footerDescription ?? "Maltese Premier League football club based in Birkirkara, Malta. The Stripes.";
+
   return (
     <footer className="bg-surface border-t border-white/10 pt-12 pb-6">
       <div className="max-w-7xl mx-auto px-6">
@@ -73,15 +76,15 @@ export default function Footer() {
               <FooterCrest />
               <div>
                 <div className="font-display font-extrabold italic text-white text-lg leading-tight">
-                  Birkirkara FC
+                  {clubName}
                 </div>
                 <div className="text-[10px] text-white/40 tracking-widest uppercase">
-                  Est. 1950 · Malta
+                  {clubTagline}
                 </div>
               </div>
             </div>
             <p className="text-white/40 text-xs leading-relaxed">
-              Maltese Premier League football club based in Birkirkara, Malta. The Stripes.
+              {description}
             </p>
           </div>
 
@@ -107,7 +110,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-white/30 text-xs">
-          <span>© {new Date().getFullYear()} Birkirkara FC. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} {clubName}. All rights reserved.</span>
           <span>Maltese Premier League · Malta</span>
         </div>
       </div>

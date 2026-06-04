@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Footer from "@/components/Footer";
 import { client, urlFor } from "@/lib/sanity.client";
-import { allPlayersQuery } from "@/lib/queries";
+import { allPlayersQuery, siteSettingsQuery } from "@/lib/queries";
 
 export const revalidate = 60;
 
@@ -45,11 +45,13 @@ const fallbackPlayers: SanityPlayer[] = [
 ];
 
 export default async function SquadPage() {
-  const players = await client
-    .fetch<SanityPlayer[]>(allPlayersQuery)
-    .catch(() => [] as SanityPlayer[]);
+  const [players, settings] = await Promise.all([
+    client.fetch<SanityPlayer[]>(allPlayersQuery).catch(() => [] as SanityPlayer[]),
+    client.fetch(siteSettingsQuery).catch(() => null),
+  ]);
 
   const roster = players.length > 0 ? players : fallbackPlayers;
+  const seasonLabel = settings?.seasonLabel ?? "2024/25 Season";
 
   return (
     <main className="flex-1 bg-background">
@@ -57,7 +59,7 @@ export default async function SquadPage() {
       <section className="border-b border-white/10 bg-surface">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="text-bka-red text-xs font-semibold uppercase tracking-widest mb-2">
-            2024/25 Season
+            {seasonLabel}
           </div>
           <h1 className="font-display font-extrabold italic text-white uppercase text-5xl tracking-wide">
             The Squad

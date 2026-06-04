@@ -1,6 +1,6 @@
 import Footer from "@/components/Footer";
 import { client } from "@/lib/sanity.client";
-import { allMembershipsQuery } from "@/lib/queries";
+import { allMembershipsQuery, siteSettingsQuery } from "@/lib/queries";
 
 export const revalidate = 60;
 
@@ -42,11 +42,14 @@ const fallbackTiers: SanityMembership[] = [
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function MembershipsPage() {
-  const tiers = await client
-    .fetch<SanityMembership[]>(allMembershipsQuery)
-    .catch(() => [] as SanityMembership[]);
+  const [tiers, settings] = await Promise.all([
+    client.fetch<SanityMembership[]>(allMembershipsQuery).catch(() => [] as SanityMembership[]),
+    client.fetch(siteSettingsQuery).catch(() => null),
+  ]);
 
   const roster = tiers.length > 0 ? tiers : fallbackTiers;
+  const seasonLabel = settings?.seasonLabel ?? "2024/25 Season";
+  const pageSubtitle = settings?.membershipsPageSubtitle ?? "Support the Stripes and get exclusive benefits — matchday tickets, merchandise discounts, and priority access to club events.";
 
   return (
     <main className="flex-1 bg-background">
@@ -54,14 +57,13 @@ export default async function MembershipsPage() {
       <section className="border-b border-white/10 bg-surface">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="text-bka-gold text-xs font-semibold uppercase tracking-widest mb-2">
-            2024/25 Season
+            {seasonLabel}
           </div>
           <h1 className="font-display font-extrabold italic text-white uppercase text-5xl tracking-wide">
             Memberships
           </h1>
           <p className="text-white/50 text-base mt-3 max-w-xl">
-            Support the Stripes and get exclusive benefits — matchday tickets, merchandise
-            discounts, and priority access to club events.
+            {pageSubtitle}
           </p>
         </div>
       </section>

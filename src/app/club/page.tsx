@@ -2,7 +2,7 @@ import { PortableText } from "@portabletext/react";
 import type { PortableTextComponents } from "@portabletext/react";
 import Footer from "@/components/Footer";
 import { client } from "@/lib/sanity.client";
-import { clubPageQuery } from "@/lib/queries";
+import { clubPageQuery, siteSettingsQuery } from "@/lib/queries";
 
 export const revalidate = 60;
 
@@ -59,9 +59,10 @@ const ptComponents: PortableTextComponents = {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function ClubPage() {
-  const data = await client
-    .fetch<SanityClubPage | null>(clubPageQuery)
-    .catch(() => null);
+  const [data, settings] = await Promise.all([
+    client.fetch<SanityClubPage | null>(clubPageQuery).catch(() => null),
+    client.fetch(siteSettingsQuery).catch(() => null),
+  ]);
 
   const historyBody = data?.historyBody?.length ? data.historyBody : fallbackHistory;
   const honours = data?.honours?.length ? data.honours : fallbackHonours;
@@ -73,7 +74,7 @@ export default async function ClubPage() {
       <section className="border-b border-white/10 bg-surface">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="text-bka-red text-xs font-semibold uppercase tracking-widest mb-2">
-            Est. 1950 · Birkirkara, Malta
+            {settings?.clubTagline ?? "Est. 1950 · Birkirkara, Malta"}
           </div>
           <h1 className="font-display font-extrabold italic text-white uppercase text-5xl tracking-wide">
             About Birkirkara FC

@@ -40,6 +40,8 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-white font-body antialiased">
         <Navbar
           crestUrl={crestUrl}
+          clubName={settings?.clubName}
+          clubTagline={settings?.clubTagline}
           seasonLabel={settings?.seasonLabel}
           facebook={settings?.facebook}
           instagram={settings?.instagram}

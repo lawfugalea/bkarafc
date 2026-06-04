@@ -1,6 +1,6 @@
 import Footer from "@/components/Footer";
 import { client } from "@/lib/sanity.client";
-import { allUpcomingFixturesQuery, allResultsQuery } from "@/lib/queries";
+import { allUpcomingFixturesQuery, allResultsQuery, siteSettingsQuery } from "@/lib/queries";
 
 export const revalidate = 60;
 
@@ -63,10 +63,13 @@ const fallbackResults = [
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function FixturesPage() {
-  const [upcomingRaw, resultsRaw] = await Promise.all([
+  const [upcomingRaw, resultsRaw, settings] = await Promise.all([
     client.fetch<SanityFixture[]>(allUpcomingFixturesQuery).catch(() => []),
     client.fetch<SanityFixture[]>(allResultsQuery).catch(() => []),
+    client.fetch(siteSettingsQuery).catch(() => null),
   ]);
+
+  const seasonLabel = settings?.seasonLabel ?? "2024/25 Season · Premier League";
 
   const upcoming =
     upcomingRaw.length > 0
@@ -110,7 +113,7 @@ export default async function FixturesPage() {
       <section className="border-b border-white/10 bg-surface">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="text-bka-red text-xs font-semibold uppercase tracking-widest mb-2">
-            2024/25 Season · Premier League
+            {seasonLabel}
           </div>
           <h1 className="font-display font-extrabold italic text-white uppercase text-5xl tracking-wide">
             Fixtures &amp; Results
