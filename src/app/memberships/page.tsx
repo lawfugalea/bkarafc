@@ -73,10 +73,12 @@ export default async function MembershipsPage() {
           <p className="text-white/40 text-center py-20">No memberships available at this time.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {roster.map((tier) => (
+            {roster.map((tier, i) => (
               <div
                 key={tier.name}
-                className={`flex flex-col p-8 ${
+                data-animate
+                data-animate-delay={String(i * 100)}
+                className={`flex flex-col p-8 transition-transform duration-200 hover:-translate-y-1 ${
                   tier.highlight ? "bg-bka-red" : "bg-surface border border-white/10"
                 }`}
               >

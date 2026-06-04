@@ -73,13 +73,15 @@ export default async function SquadPage() {
           if (groupPlayers.length === 0) return null;
           return (
             <section key={group.key}>
-              <h2 className="font-display font-extrabold italic text-bka-gold uppercase text-2xl tracking-widest mb-6 border-b border-white/10 pb-3">
+              <h2 data-animate className="font-display font-extrabold italic text-bka-gold uppercase text-2xl tracking-widest mb-6 border-b border-white/10 pb-3">
                 {group.label}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {groupPlayers.map((player) => (
+                {groupPlayers.map((player, i) => (
                   <a
                     key={player.number}
+                    data-animate
+                    data-animate-delay={String(i * 75)}
                     href={`/squad/${player.number}`}
                     className="bg-surface group block relative overflow-hidden"
                   >
@@ -97,7 +99,7 @@ export default async function SquadPage() {
                           Photo
                         </span>
                       )}
-                      <span className="font-display font-extrabold italic text-bka-gold text-5xl absolute top-3 right-3 leading-none drop-shadow-lg">
+                      <span className="font-display font-extrabold italic text-bka-gold group-hover:text-white transition-colors duration-200 text-5xl absolute top-3 right-3 leading-none drop-shadow-lg">
                         {player.number}
                       </span>
                     </div>

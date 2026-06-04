@@ -64,6 +64,8 @@ export default async function GalleryPage() {
               return (
                 <div
                   key={i}
+                  data-animate
+                  data-animate-delay={String((i % 4) * 75)}
                   className="break-inside-avoid mb-4 bg-surface group cursor-pointer overflow-hidden"
                 >
                   <div className={`${aspect} relative overflow-hidden`}>

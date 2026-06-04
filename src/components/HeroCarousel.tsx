@@ -14,9 +14,19 @@ export interface CarouselSlide {
 export default function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [animKey, setAnimKey] = useState(0)
+
+  const goTo = useCallback((index: number) => {
+    setCurrent(index)
+    setAnimKey((k) => k + 1)
+  }, [])
 
   const advance = useCallback(() => {
-    setCurrent((c) => (c + 1) % slides.length)
+    setCurrent((c) => {
+      const next = (c + 1) % slides.length
+      return next
+    })
+    setAnimKey((k) => k + 1)
   }, [slides.length])
 
   useEffect(() => {
@@ -56,27 +66,42 @@ export default function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
           {/* Dark overlay */}
           <div className="absolute inset-0 bg-black/50" />
 
-          {/* Slide content — pinned to bottom-left */}
-          <div className="relative z-10 max-w-7xl mx-auto px-6 min-h-[580px] flex flex-col justify-end pb-20">
-            <span className="inline-block bg-bka-red text-white text-xs font-semibold uppercase tracking-widest px-3 py-1.5 mb-5 w-fit">
-              {slide.category}
-            </span>
-
-            <h2 className="font-display font-extrabold italic uppercase text-white leading-[0.9] text-[clamp(2.5rem,6vw,5.5rem)] max-w-4xl mb-4">
-              {slide.title}
-            </h2>
-
-            <div className="text-white/60 text-sm mb-6 uppercase tracking-wider">
-              {slide.date}
-            </div>
-
-            <a
-              href={slide.href}
-              className="bg-bka-red text-white font-semibold uppercase tracking-wider text-sm px-8 py-3 hover:bg-[#b00217] transition-colors w-fit"
+          {/* Content — re-mounts on each transition so CSS animations replay */}
+          {i === current && (
+            <div
+              key={animKey}
+              className="relative z-10 max-w-7xl mx-auto px-6 min-h-[580px] flex flex-col justify-end pb-20"
             >
-              Read More
-            </a>
-          </div>
+              <span
+                className="hero-item inline-block bg-bka-red text-white text-xs font-semibold uppercase tracking-widest px-3 py-1.5 mb-5 w-fit"
+                style={{ animationDelay: '0.05s' }}
+              >
+                {slide.category}
+              </span>
+
+              <h2
+                className="hero-item font-display font-extrabold italic uppercase text-white leading-[0.9] text-[clamp(2.5rem,6vw,5.5rem)] max-w-4xl mb-4"
+                style={{ animationDelay: '0.2s' }}
+              >
+                {slide.title}
+              </h2>
+
+              <div
+                className="hero-item text-white/60 text-sm mb-6 uppercase tracking-wider"
+                style={{ animationDelay: '0.35s' }}
+              >
+                {slide.date}
+              </div>
+
+              <a
+                href={slide.href}
+                className="hero-item bg-bka-red text-white font-semibold uppercase tracking-wider text-sm px-8 py-3 hover:bg-[#b00217] transition-colors w-fit"
+                style={{ animationDelay: '0.45s' }}
+              >
+                Read More
+              </a>
+            </div>
+          )}
         </div>
       ))}
 
@@ -86,7 +111,7 @@ export default function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
           {slides.map((_, i) => (
             <button
               key={i}
-              onClick={() => setCurrent(i)}
+              onClick={() => goTo(i)}
               aria-label={`Go to slide ${i + 1}`}
               className={`h-2 rounded-full transition-all duration-300 ${
                 i === current

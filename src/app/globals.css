@@ -13,3 +13,64 @@ body {
   background-color: #080808;
   color: #ffffff;
 }
+
+/* ── Page transition ─────────────────────────────────────────────────────── */
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+main {
+  animation: page-in 0.35s ease both;
+}
+
+/* ── Fixture band slides down from hero ──────────────────────────────────── */
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.45s ease 0.2s both;
+}
+
+/* ── Scroll-triggered fade-up ────────────────────────────────────────────── */
+
+[data-animate] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+[data-animate].in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Hero carousel content stagger ──────────────────────────────────────── */
+
+@keyframes hero-item-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-item {
+  animation: hero-item-in 0.5s ease both;
+}
+
+/* ── Respect reduced-motion preference ───────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  main,
+  .animate-slide-down,
+  .hero-item,
+  [data-animate],
+  [data-animate].in-view {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

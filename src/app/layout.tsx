@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Barlow_Condensed, Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import ScrollObserver from "@/components/ScrollObserver";
 import { client, urlFor } from "@/lib/sanity.client";
 import { siteSettingsQuery } from "@/lib/queries";
 
@@ -38,6 +39,7 @@ export default async function RootLayout({
       className={`${barlowCondensed.variable} ${inter.variable}`}
     >
       <body className="min-h-full flex flex-col bg-background text-white font-body antialiased">
+        <ScrollObserver />
         <Navbar
           crestUrl={crestUrl}
           clubName={settings?.clubName}

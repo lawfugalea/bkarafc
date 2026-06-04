@@ -82,6 +82,7 @@ export default async function NewsPage() {
         {/* Featured article */}
         {featured && (
           <a
+            data-animate
             href={`/news/${featured.slug.current}`}
             className="lg:flex gap-8 bg-surface group block mb-10"
           >
@@ -118,9 +119,11 @@ export default async function NewsPage() {
         {/* Remaining articles grid */}
         {rest.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {rest.map((item) => (
+            {rest.map((item, i) => (
               <a
                 key={item.slug.current}
+                data-animate
+                data-animate-delay={String(i * 75)}
                 href={`/news/${item.slug.current}`}
                 className="bg-surface group block overflow-hidden"
               >

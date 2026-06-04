@@ -312,7 +312,7 @@ export default async function Home() {
       )}
 
       {/* ── Fixture band ─────────────────────────────────────── */}
-      <section className="bg-surface border-b-2 border-bka-gold">
+      <section className="bg-surface border-b-2 border-bka-gold animate-slide-down">
         <div className="max-w-7xl mx-auto flex items-stretch min-h-[80px]">
           <div className="bg-bka-red px-6 py-4 flex items-center shrink-0">
             <span className="font-display font-extrabold italic text-white uppercase text-sm tracking-widest whitespace-nowrap">
@@ -337,12 +337,12 @@ export default async function Home() {
 
       {/* ── News grid ────────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-6 py-16">
-        <h2 className="font-display font-extrabold italic text-white uppercase text-4xl mb-8 tracking-wide">
+        <h2 data-animate className="font-display font-extrabold italic text-white uppercase text-4xl mb-8 tracking-wide">
           Latest News
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Featured card — spans 2 columns */}
-          <a href={featuredCard.href} className="lg:col-span-2 bg-surface group block">
+          <a data-animate data-animate-delay="100" href={featuredCard.href} className="lg:col-span-2 bg-surface group block">
             <div className="aspect-video bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
               {featuredCard.coverImage ? (
                 <Image
@@ -374,9 +374,11 @@ export default async function Home() {
 
           {/* 2×2 smaller cards */}
           <div className="grid grid-cols-2 lg:grid-cols-2 gap-4">
-            {smallCards.slice(0, 4).map((item) => (
+            {smallCards.slice(0, 4).map((item, i) => (
               <a
                 key={item.href + item.title}
+                data-animate
+                data-animate-delay={String(200 + i * 75)}
                 href={item.href}
                 className="bg-surface group block overflow-hidden"
               >
@@ -413,12 +415,20 @@ export default async function Home() {
       {/* ── Results strip ────────────────────────────────────── */}
       <section className="bg-surface py-10">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="font-display font-extrabold italic text-white uppercase text-3xl mb-6 tracking-wide">
+          <h2 data-animate className="font-display font-extrabold italic text-white uppercase text-3xl mb-6 tracking-wide">
             Recent Results
           </h2>
           <div className="divide-y divide-white/10">
             {results.map((r, i) => (
-              <div key={i} className="flex items-center gap-4 py-3">
+              <div
+                key={i}
+                data-animate
+                data-animate-delay={String(i * 60)}
+                className="relative flex items-center gap-4 py-3 group overflow-hidden"
+              >
+                <div className={`absolute left-0 top-0 bottom-0 w-0.5 origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-200 ${
+                  r.result === 'W' ? 'bg-green-600' : r.result === 'D' ? 'bg-yellow-500' : 'bg-red-700'
+                }`} />
                 <span className={`text-xs font-bold px-2 py-0.5 shrink-0 ${resultBadgeClass[r.result]}`}>
                   {r.result}
                 </span>
@@ -440,7 +450,7 @@ export default async function Home() {
       {/* ── Squad preview ────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="flex items-baseline justify-between mb-8">
-          <h2 className="font-display font-extrabold italic text-white uppercase text-4xl tracking-wide">
+          <h2 data-animate className="font-display font-extrabold italic text-white uppercase text-4xl tracking-wide">
             The Squad
           </h2>
           <a
@@ -451,8 +461,8 @@ export default async function Home() {
           </a>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {squad.map((player) => (
-            <a key={player.number} href="/squad" className="bg-surface group block relative overflow-hidden">
+          {squad.map((player, i) => (
+            <a key={player.number} data-animate data-animate-delay={String(100 + i * 75)} href={`/squad/${player.number}`} className="bg-surface group block relative overflow-hidden">
               <div className="aspect-[3/4] bg-[#1c1c1c] relative overflow-hidden flex items-end justify-center pb-4">
                 {player.photo ? (
                   <Image
@@ -467,7 +477,7 @@ export default async function Home() {
                     Photo
                   </span>
                 )}
-                <span className="font-display font-extrabold italic text-bka-gold text-4xl absolute top-3 right-3 leading-none drop-shadow-lg z-10">
+                <span className="font-display font-extrabold italic text-bka-gold group-hover:text-white transition-colors duration-200 text-4xl absolute top-3 right-3 leading-none drop-shadow-lg z-10">
                   {player.number}
                 </span>
               </div>
@@ -485,7 +495,7 @@ export default async function Home() {
       </section>
 
       {/* ── Membership CTA ───────────────────────────────────── */}
-      <section className="bg-surface border-l-4 border-bka-gold mx-6 max-w-7xl lg:mx-auto mb-16 px-8 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+      <section data-animate className="bg-surface border-l-4 border-bka-gold mx-6 max-w-7xl lg:mx-auto mb-16 px-8 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
           <div className="text-bka-gold text-xs font-semibold uppercase tracking-widest mb-2">
             {cta.season}

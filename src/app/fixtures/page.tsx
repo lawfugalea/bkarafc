@@ -132,7 +132,8 @@ export default async function FixturesPage() {
           ) : (
             <div className="divide-y divide-white/10 bg-surface">
               {upcoming.map((f, i) => (
-                <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 px-6 py-5">
+                <div key={i} data-animate data-animate-delay={String(i * 60)} className="relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 px-6 py-5 group overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-bka-gold origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-200" />
                   <div className="shrink-0 text-white/40 text-xs w-36">{f.date}</div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 flex-wrap">
@@ -166,7 +167,10 @@ export default async function FixturesPage() {
           ) : (
             <div className="divide-y divide-white/10 bg-surface">
               {results.map((r, i) => (
-                <div key={i} className="flex items-center gap-5 px-6 py-4">
+                <div key={i} data-animate data-animate-delay={String(i * 60)} className="relative flex items-center gap-5 px-6 py-4 group overflow-hidden">
+                  <div className={`absolute left-0 top-0 bottom-0 w-0.5 origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-200 ${
+                    r.result === 'W' ? 'bg-green-600' : r.result === 'D' ? 'bg-yellow-500' : 'bg-red-700'
+                  }`} />
                   <span className={`text-xs font-bold px-2.5 py-1 shrink-0 ${resultBadge[r.result]}`}>
                     {r.result}
                   </span>
