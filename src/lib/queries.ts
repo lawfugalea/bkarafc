@@ -7,7 +7,7 @@ export const homepageQuery = groq`
   }`
 
 export const featuredPostQuery = groq`
-  *[_type == "post" && featured == true] | order(publishedAt desc)[0]{
+  *[_type == "post" && featured == true] | order(publishedAt desc)[0...3]{
     title, slug, category, coverImage, excerpt, publishedAt
   }`
 

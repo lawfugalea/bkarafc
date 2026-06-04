@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Footer from "@/components/Footer";
+import HeroCarousel from "@/components/HeroCarousel";
 import { client, urlFor } from "@/lib/sanity.client";
 import {
   homepageQuery,
@@ -152,15 +153,24 @@ const resultBadgeClass = {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
-  const [homepageData, featuredPost, recentPosts, nextFixture, recentResults, squadPlayers] =
+  const [homepageData, featuredPosts, recentPosts, nextFixture, recentResults, squadPlayers] =
     await Promise.all([
       client.fetch<SanityHomepage | null>(homepageQuery).catch(() => null),
-      client.fetch<SanityPost | null>(featuredPostQuery).catch(() => null),
+      client.fetch<SanityPost[]>(featuredPostQuery).catch(() => []),
       client.fetch<SanityPost[]>(recentPostsQuery).catch(() => []),
       client.fetch<SanityFixture | null>(nextFixtureQuery).catch(() => null),
       client.fetch<SanityFixture[]>(recentResultsQuery).catch(() => []),
       client.fetch<SanityPlayer[]>(squadPreviewQuery).catch(() => []),
     ]);
+
+  // Build carousel slides (server-side image URLs passed to client component)
+  const carouselSlides = featuredPosts.map((p) => ({
+    href: `/news/${p.slug.current}`,
+    category: catLabel[p.category] ?? p.category,
+    title: p.title,
+    date: fmtDate(p.publishedAt),
+    imageUrl: p.coverImage ? urlFor(p.coverImage).width(1400).height(700).url() : undefined,
+  }));
 
   // Hero — Sanity values with hardcoded fallbacks
   const hero = {
@@ -189,7 +199,8 @@ export default async function Home() {
       }
     : fallbackNextMatch;
 
-  // Normalize: featured news card
+  // Normalize: featured news card (use first featured post, or fallback)
+  const featuredPost = featuredPosts[0] ?? null;
   const featuredCard = featuredPost
     ? {
         href: `/news/${featuredPost.slug.current}`,
@@ -248,54 +259,57 @@ export default async function Home() {
   return (
     <main className="flex-1">
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="relative bg-background overflow-hidden min-h-[580px] flex items-center">
-        <div
-          className="absolute inset-y-0 right-0 w-1/2 md:w-2/5 flex"
-          aria-hidden="true"
-        >
-          <div style={{ flex: 3, background: "#D0021B", opacity: 0.07 }} />
-          <div style={{ flex: 2, background: "#F5A623", opacity: 0.09 }} />
-          <div style={{ flex: 1, background: "#D0021B", opacity: 0.05 }} />
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 w-full">
-          <div className="flex items-center gap-2.5 mb-6">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-bka-red opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-bka-red" />
-            </span>
-            <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
-              {hero.seasonLabel}
-            </span>
+      {carouselSlides.length > 0 ? (
+        <HeroCarousel slides={carouselSlides} />
+      ) : (
+        /* Static fallback hero when no featured posts exist in Sanity */
+        <section className="relative bg-background overflow-hidden min-h-[580px] flex items-center">
+          <div
+            className="absolute inset-y-0 right-0 w-1/2 md:w-2/5 flex"
+            aria-hidden="true"
+          >
+            <div style={{ flex: 3, background: "#D0021B", opacity: 0.07 }} />
+            <div style={{ flex: 2, background: "#F5A623", opacity: 0.09 }} />
+            <div style={{ flex: 1, background: "#D0021B", opacity: 0.05 }} />
           </div>
-
-          <h1 className="font-display font-extrabold italic uppercase leading-none">
-            <span className="block text-[clamp(4.5rem,13vw,10rem)] text-white leading-[0.9]">
-              {hero.line1}
-            </span>
-            <span className="block text-[clamp(4.5rem,13vw,10rem)] text-white leading-[0.9]">
-              {hero.line2}
-            </span>
-            <span className="block text-[clamp(1.5rem,4vw,3rem)] text-bka-gold tracking-wide mt-2">
-              {hero.subline}
-            </span>
-          </h1>
-
-          <div className="flex flex-wrap gap-4 mt-10">
-            <a
-              href="/news"
-              className="bg-bka-red text-white font-semibold uppercase tracking-wider text-sm px-8 py-3 hover:bg-[#b00217] transition-colors"
-            >
-              Latest News
-            </a>
-            <a
-              href="/squad"
-              className="border border-white text-white font-semibold uppercase tracking-wider text-sm px-8 py-3 hover:border-bka-gold hover:text-bka-gold transition-colors"
-            >
-              View Squad
-            </a>
+          <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 w-full">
+            <div className="flex items-center gap-2.5 mb-6">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-bka-red opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-bka-red" />
+              </span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                {hero.seasonLabel}
+              </span>
+            </div>
+            <h1 className="font-display font-extrabold italic uppercase leading-none">
+              <span className="block text-[clamp(4.5rem,13vw,10rem)] text-white leading-[0.9]">
+                {hero.line1}
+              </span>
+              <span className="block text-[clamp(4.5rem,13vw,10rem)] text-white leading-[0.9]">
+                {hero.line2}
+              </span>
+              <span className="block text-[clamp(1.5rem,4vw,3rem)] text-bka-gold tracking-wide mt-2">
+                {hero.subline}
+              </span>
+            </h1>
+            <div className="flex flex-wrap gap-4 mt-10">
+              <a
+                href="/news"
+                className="bg-bka-red text-white font-semibold uppercase tracking-wider text-sm px-8 py-3 hover:bg-[#b00217] transition-colors"
+              >
+                Latest News
+              </a>
+              <a
+                href="/squad"
+                className="border border-white text-white font-semibold uppercase tracking-wider text-sm px-8 py-3 hover:border-bka-gold hover:text-bka-gold transition-colors"
+              >
+                View Squad
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Fixture band ─────────────────────────────────────── */}
       <section className="bg-surface border-b-2 border-bka-gold">
