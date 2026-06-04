@@ -37,14 +37,16 @@ main {
 }
 
 /* ── Scroll-triggered fade-up ────────────────────────────────────────────── */
+/* Only hide elements once JS confirms it's running (.js-ready on <html>).   */
+/* Without JS, all content stays visible (progressive enhancement).          */
 
-[data-animate] {
+.js-ready [data-animate] {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.55s ease, transform 0.55s ease;
 }
 
-[data-animate].in-view {
+.js-ready [data-animate].in-view {
   opacity: 1;
   transform: translateY(0);
 }
@@ -66,8 +68,8 @@ main {
   main,
   .animate-slide-down,
   .hero-item,
-  [data-animate],
-  [data-animate].in-view {
+  .js-ready [data-animate],
+  .js-ready [data-animate].in-view {
     animation: none !important;
     transition: none !important;
     opacity: 1 !important;
