@@ -4,6 +4,7 @@ import { PortableText } from "@portabletext/react";
 import Footer from "@/components/Footer";
 import { client, urlFor } from "@/lib/sanity.client";
 import { postBySlugQuery } from "@/lib/queries";
+import { catBadgeClass } from "@/lib/catBadge";
 
 export const revalidate = 60;
 
@@ -72,7 +73,7 @@ export default async function PostPage({
           <div className="absolute bottom-0 left-0 right-0 pb-8 pt-20">
             <div className="max-w-3xl mx-auto px-6">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-bka-red text-xs font-semibold uppercase tracking-wider">
+                <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 ${catBadgeClass(post.category)}`}>
                   {catLabel[post.category] ?? post.category}
                 </span>
                 <span className="text-white/30">·</span>

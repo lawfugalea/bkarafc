@@ -85,7 +85,7 @@ export default async function ClubPage() {
       <div className="max-w-4xl mx-auto px-6 py-14">
         {/* History */}
         <section className="mb-14">
-          <h2 data-animate className="font-display font-extrabold italic text-white uppercase text-3xl tracking-wide mb-6">
+          <h2 data-animate className="heading-accent font-display font-extrabold italic text-white uppercase text-3xl tracking-wide mb-8">
             Club History
           </h2>
           <div className="space-y-5">
@@ -95,7 +95,7 @@ export default async function ClubPage() {
 
         {/* Honours */}
         <section className="mb-14">
-          <h2 data-animate className="font-display font-extrabold italic text-white uppercase text-3xl tracking-wide mb-6">
+          <h2 data-animate className="heading-accent font-display font-extrabold italic text-white uppercase text-3xl tracking-wide mb-8">
             Honours
           </h2>
           <div className="space-y-6">
@@ -121,7 +121,7 @@ export default async function ClubPage() {
 
         {/* Stadium */}
         <section>
-          <h2 data-animate className="font-display font-extrabold italic text-white uppercase text-3xl tracking-wide mb-6">
+          <h2 data-animate className="heading-accent font-display font-extrabold italic text-white uppercase text-3xl tracking-wide mb-8">
             Stadium
           </h2>
           <div data-animate data-animate-delay="100" className="bg-surface p-6 space-y-4">

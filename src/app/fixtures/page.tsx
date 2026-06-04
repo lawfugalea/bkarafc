@@ -124,7 +124,7 @@ export default async function FixturesPage() {
       <div className="max-w-7xl mx-auto px-6 py-14 space-y-14">
         {/* Upcoming fixtures */}
         <section>
-          <h2 className="font-display font-extrabold italic text-white uppercase text-3xl mb-6 tracking-wide">
+          <h2 className="heading-accent font-display font-extrabold italic text-white uppercase text-3xl mb-8 tracking-wide">
             Upcoming Fixtures
           </h2>
           {upcoming.length === 0 ? (
@@ -159,7 +159,7 @@ export default async function FixturesPage() {
 
         {/* Results */}
         <section>
-          <h2 className="font-display font-extrabold italic text-white uppercase text-3xl mb-6 tracking-wide">
+          <h2 className="heading-accent font-display font-extrabold italic text-white uppercase text-3xl mb-8 tracking-wide">
             Recent Results
           </h2>
           {results.length === 0 ? (

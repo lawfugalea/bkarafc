@@ -78,43 +78,43 @@ export default async function SquadPage() {
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {groupPlayers.map((player, i) => (
-                  <a
-                    key={player.number}
-                    data-animate
-                    data-animate-delay={String(i * 75)}
-                    href={`/squad/${player.number}`}
-                    className="bg-surface group block relative overflow-hidden"
-                  >
-                    <div className="aspect-[3/4] bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
-                      {player.photo ? (
-                        <Image
-                          src={urlFor(player.photo).width(400).height(533).url()}
-                          alt={player.name}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <span className="text-white/10 text-xs uppercase tracking-widest absolute">
-                          Photo
+                  <div key={player.number} data-animate data-animate-delay={String(i * 75)}>
+                    <a
+                      href={`/squad/${player.number}`}
+                      className="card-interactive bg-surface group relative overflow-hidden"
+                    >
+                      <div className="aspect-[3/4] bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
+                        {player.photo ? (
+                          <Image
+                            src={urlFor(player.photo).width(400).height(533).url()}
+                            alt={player.name}
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <span className="text-white/10 text-xs uppercase tracking-widest absolute">
+                            Photo
+                          </span>
+                        )}
+                        <span className="font-display font-extrabold italic text-bka-gold group-hover:text-white transition-colors duration-200 text-6xl absolute top-2 right-3 leading-none drop-shadow-lg">
+                          {player.number}
                         </span>
-                      )}
-                      <span className="font-display font-extrabold italic text-bka-gold group-hover:text-white transition-colors duration-200 text-5xl absolute top-3 right-3 leading-none drop-shadow-lg">
-                        {player.number}
-                      </span>
-                    </div>
-                    <div className="p-3">
-                      <div className="text-white/40 text-[10px] uppercase tracking-widest">
-                        {group.label.slice(0, -1)}
                       </div>
-                      <div className="text-white font-semibold text-sm mt-0.5 group-hover:text-bka-gold transition-colors">
-                        {player.name}
+                      <div className="p-3">
+                        <div className="text-white/40 text-[10px] uppercase tracking-widest">
+                          {group.label.slice(0, -1)}
+                        </div>
+                        <div className="text-white font-semibold text-sm mt-0.5 group-hover:text-bka-gold transition-colors">
+                          {player.name}
+                        </div>
+                        {player.nationality && (
+                          <div className="text-white/30 text-[10px] mt-0.5">{player.nationality}</div>
+                        )}
                       </div>
-                      {player.nationality && (
-                        <div className="text-white/30 text-[10px] mt-0.5">{player.nationality}</div>
-                      )}
-                    </div>
-                  </a>
+                      <div className="h-[3px] bg-bka-red scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                    </a>
+                  </div>
                 ))}
               </div>
             </section>

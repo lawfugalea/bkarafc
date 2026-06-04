@@ -2,6 +2,7 @@ import Image from "next/image";
 import Footer from "@/components/Footer";
 import HeroCarousel from "@/components/HeroCarousel";
 import { client, urlFor } from "@/lib/sanity.client";
+import { catBadgeClass } from "@/lib/catBadge";
 import {
   homepageQuery,
   featuredPostQuery,
@@ -314,6 +315,12 @@ export default async function Home() {
       {/* ── Fixture band ─────────────────────────────────────── */}
       <section className="bg-surface border-b-2 border-bka-gold animate-slide-down">
         <div className="max-w-7xl mx-auto flex items-stretch min-h-[80px]">
+          {/* Red / gold / red kit stripe accent */}
+          <div className="flex flex-col w-[3px] shrink-0" aria-hidden="true">
+            <div className="flex-1 bg-bka-red" />
+            <div className="flex-1 bg-bka-gold" />
+            <div className="flex-1 bg-bka-red" />
+          </div>
           <div className="bg-bka-red px-6 py-4 flex items-center shrink-0">
             <span className="font-display font-extrabold italic text-white uppercase text-sm tracking-widest whitespace-nowrap">
               Next Match
@@ -337,85 +344,89 @@ export default async function Home() {
 
       {/* ── News grid ────────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-6 py-16">
-        <h2 data-animate className="font-display font-extrabold italic text-white uppercase text-4xl mb-8 tracking-wide">
+        <h2 data-animate className="heading-accent font-display font-extrabold italic text-white uppercase text-4xl mb-10 tracking-wide">
           Latest News
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Featured card — spans 2 columns */}
-          <a data-animate data-animate-delay="100" href={featuredCard.href} className="lg:col-span-2 bg-surface group block">
-            <div className="aspect-video bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
-              {featuredCard.coverImage ? (
-                <Image
-                  src={urlFor(featuredCard.coverImage).width(900).height(506).url()}
-                  alt={featuredCard.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 66vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              ) : (
-                <span className="text-white/15 text-xs uppercase tracking-widest">
-                  Image
+          <div data-animate data-animate-delay="100" className="lg:col-span-2">
+            <a href={featuredCard.href} className="card-interactive bg-surface group overflow-hidden">
+              <div className="aspect-video bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
+                {featuredCard.coverImage ? (
+                  <Image
+                    src={urlFor(featuredCard.coverImage).width(900).height(506).url()}
+                    alt={featuredCard.title}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <span className="text-white/15 text-xs uppercase tracking-widest">
+                    Image
+                  </span>
+                )}
+              </div>
+              <div className="p-6">
+                <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 ${catBadgeClass(featuredCard.category)}`}>
+                  {featuredCard.category}
                 </span>
-              )}
-            </div>
-            <div className="p-6">
-              <span className="text-bka-red text-xs font-semibold uppercase tracking-wider">
-                {featuredCard.category}
-              </span>
-              <h3 className="font-display font-bold italic text-white text-2xl mt-2 leading-tight group-hover:text-bka-gold transition-colors">
-                {featuredCard.title}
-              </h3>
-              <p className="text-white/50 text-sm mt-3 leading-relaxed line-clamp-2">
-                {featuredCard.excerpt}
-              </p>
-              <div className="text-white/30 text-xs mt-4">{featuredCard.date}</div>
-            </div>
-          </a>
+                <h3 className="font-display font-bold italic text-white text-2xl mt-3 leading-tight group-hover:text-bka-gold transition-colors">
+                  {featuredCard.title}
+                </h3>
+                <p className="text-white/50 text-sm mt-3 leading-relaxed line-clamp-2">
+                  {featuredCard.excerpt}
+                </p>
+                <div className="text-white/30 text-xs mt-4">{featuredCard.date}</div>
+              </div>
+              <div className="h-[3px] bg-bka-red scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+            </a>
+          </div>
 
           {/* 2×2 smaller cards */}
           <div className="grid grid-cols-2 lg:grid-cols-2 gap-4">
             {smallCards.slice(0, 4).map((item, i) => (
-              <a
+              <div
                 key={item.href + item.title}
                 data-animate
                 data-animate-delay={String(200 + i * 75)}
-                href={item.href}
-                className="bg-surface group block overflow-hidden"
               >
-                <div className="aspect-video bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
-                  {item.coverImage ? (
-                    <Image
-                      src={urlFor(item.coverImage).width(400).height(225).url()}
-                      alt={item.title}
-                      fill
-                      sizes="25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <span className="text-white/10 text-[10px] uppercase tracking-widest">
-                      Image
+                <a href={item.href} className="card-interactive bg-surface group overflow-hidden">
+                  <div className="aspect-video bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
+                    {item.coverImage ? (
+                      <Image
+                        src={urlFor(item.coverImage).width(400).height(225).url()}
+                        alt={item.title}
+                        fill
+                        sizes="25vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <span className="text-white/10 text-[10px] uppercase tracking-widest">
+                        Image
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 ${catBadgeClass(item.category)}`}>
+                      {item.category}
                     </span>
-                  )}
-                </div>
-                <div className="p-3">
-                  <span className="text-bka-red text-[10px] font-semibold uppercase tracking-wider">
-                    {item.category}
-                  </span>
-                  <h3 className="text-white font-semibold text-sm mt-1.5 leading-snug group-hover:text-bka-gold transition-colors">
-                    {item.title}
-                  </h3>
-                  <div className="text-white/30 text-[11px] mt-3">{item.date}</div>
-                </div>
-              </a>
+                    <h3 className="text-white font-semibold text-sm mt-2 leading-snug group-hover:text-bka-gold transition-colors">
+                      {item.title}
+                    </h3>
+                    <div className="text-white/30 text-[11px] mt-3">{item.date}</div>
+                  </div>
+                  <div className="h-[3px] bg-bka-red scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                </a>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ── Results strip ────────────────────────────────────── */}
-      <section className="bg-surface py-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 data-animate className="font-display font-extrabold italic text-white uppercase text-3xl mb-6 tracking-wide">
+      <section className="bg-surface py-10 stripe-section">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <h2 data-animate className="heading-accent font-display font-extrabold italic text-white uppercase text-3xl mb-8 tracking-wide">
             Recent Results
           </h2>
           <div className="divide-y divide-white/10">
@@ -450,7 +461,7 @@ export default async function Home() {
       {/* ── Squad preview ────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="flex items-baseline justify-between mb-8">
-          <h2 data-animate className="font-display font-extrabold italic text-white uppercase text-4xl tracking-wide">
+          <h2 data-animate className="heading-accent font-display font-extrabold italic text-white uppercase text-4xl tracking-wide">
             The Squad
           </h2>
           <a
@@ -462,40 +473,43 @@ export default async function Home() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {squad.map((player, i) => (
-            <a key={player.number} data-animate data-animate-delay={String(100 + i * 75)} href={`/squad/${player.number}`} className="bg-surface group block relative overflow-hidden">
-              <div className="aspect-[3/4] bg-[#1c1c1c] relative overflow-hidden flex items-end justify-center pb-4">
-                {player.photo ? (
-                  <Image
-                    src={urlFor(player.photo).width(400).height(533).url()}
-                    alt={player.name}
-                    fill
-                    sizes="(max-width: 640px) 50vw, 25vw"
-                    className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <span className="text-white/10 text-xs uppercase tracking-widest absolute top-1/2 -translate-y-1/2">
-                    Photo
+            <div key={player.number} data-animate data-animate-delay={String(100 + i * 75)}>
+              <a href={`/squad/${player.number}`} className="card-interactive bg-surface group relative overflow-hidden">
+                <div className="aspect-[3/4] bg-[#1c1c1c] relative overflow-hidden flex items-end justify-center pb-4">
+                  {player.photo ? (
+                    <Image
+                      src={urlFor(player.photo).width(400).height(533).url()}
+                      alt={player.name}
+                      fill
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <span className="text-white/10 text-xs uppercase tracking-widest absolute top-1/2 -translate-y-1/2">
+                      Photo
+                    </span>
+                  )}
+                  <span className="font-display font-extrabold italic text-bka-gold group-hover:text-white transition-colors duration-200 text-5xl absolute top-2 right-3 leading-none drop-shadow-lg z-10">
+                    {player.number}
                   </span>
-                )}
-                <span className="font-display font-extrabold italic text-bka-gold group-hover:text-white transition-colors duration-200 text-4xl absolute top-3 right-3 leading-none drop-shadow-lg z-10">
-                  {player.number}
-                </span>
-              </div>
-              <div className="p-3">
-                <div className="text-white/40 text-[10px] uppercase tracking-widest">
-                  {player.position}
                 </div>
-                <div className="text-white font-semibold text-sm mt-0.5 group-hover:text-bka-gold transition-colors">
-                  {player.name}
+                <div className="p-3">
+                  <div className="text-white/40 text-[10px] uppercase tracking-widest">
+                    {player.position}
+                  </div>
+                  <div className="text-white font-semibold text-sm mt-0.5 group-hover:text-bka-gold transition-colors">
+                    {player.name}
+                  </div>
                 </div>
-              </div>
-            </a>
+                <div className="h-[3px] bg-bka-red scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              </a>
+            </div>
           ))}
         </div>
       </section>
 
       {/* ── Membership CTA ───────────────────────────────────── */}
-      <section data-animate className="bg-surface border-l-4 border-bka-gold mx-6 max-w-7xl lg:mx-auto mb-16 px-8 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+      <section data-animate className="cta-gradient border-l-4 border-bka-gold mx-6 max-w-7xl lg:mx-auto mb-16 px-8 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
           <div className="text-bka-gold text-xs font-semibold uppercase tracking-widest mb-2">
             {cta.season}

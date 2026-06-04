@@ -70,7 +70,7 @@ export default async function Footer() {
   const crestUrl = settings?.crest ? urlFor(settings.crest).width(96).height(112).url() : null;
 
   return (
-    <footer className="bg-surface border-t border-white/10 pt-12 pb-6">
+    <footer className="bg-surface border-t-[3px] border-bka-red pt-12 pb-6">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div>
