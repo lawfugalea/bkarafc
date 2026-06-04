@@ -1,13 +1,72 @@
+import { PortableText } from "@portabletext/react";
+import type { PortableTextComponents } from "@portabletext/react";
 import Footer from "@/components/Footer";
+import { client } from "@/lib/sanity.client";
+import { clubPageQuery } from "@/lib/queries";
 
-const honours = [
+export const revalidate = 60;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PortableTextBlock = any[];
+
+interface SanityHonour {
+  title: string;
+  years?: string[];
+}
+
+interface SanityClubPage {
+  historyBody?: PortableTextBlock;
+  honours?: SanityHonour[];
+  stadiumBody?: PortableTextBlock;
+}
+
+// ── Fallbacks ─────────────────────────────────────────────────────────────────
+
+const fallbackHistory: PortableTextBlock = [
+  { _type: "block", _key: "h1", style: "normal", children: [{ _type: "span", text: "Birkirkara FC was founded in 1950 in the town of Birkirkara, the most populous town on the island of Malta. The club quickly established itself as one of the cornerstones of Maltese football, rising through the divisions and reaching the top flight of Maltese football." }] },
+  { _type: "block", _key: "h2", style: "normal", children: [{ _type: "span", text: "Known as The Stripes for their distinctive red and white vertically striped kit, Birkirkara became one of the dominant forces in the Maltese Premier League during the 2000s and 2010s, winning the league title on seven occasions." }] },
+  { _type: "block", _key: "h3", style: "normal", children: [{ _type: "span", text: "The club has represented Malta in UEFA club competition on numerous occasions, competing in the UEFA Champions League qualifying rounds and the UEFA Europa League, showcasing Maltese football on the European stage." }] },
+  { _type: "block", _key: "h4", style: "normal", children: [{ _type: "span", text: "Birkirkara has been central to the development of Maltese football talent, producing numerous players who have gone on to represent the Maltese national team. The club's academy continues to be one of the most respected in the country." }] },
+];
+
+const fallbackHonours: SanityHonour[] = [
   { title: "Maltese Premier League", years: ["2002/03", "2005/06", "2009/10", "2010/11", "2012/13", "2014/15", "2015/16"] },
   { title: "FA Trophy", years: ["1998/99", "2001/02", "2002/03", "2005/06", "2008/09", "2010/11", "2012/13", "2014/15"] },
   { title: "FA Cup", years: ["2005/06", "2010/11", "2013/14"] },
   { title: "Super Cup", years: ["2003", "2010", "2011", "2013", "2015", "2016"] },
 ];
 
-export default function ClubPage() {
+const fallbackStadium: PortableTextBlock = [
+  { _type: "block", _key: "s1", style: "normal", children: [{ _type: "span", text: "Birkirkara FC play their home matches at the Centenary Stadium in Ta' Qali, Malta, which is also the national stadium of Malta. The stadium has a capacity of approximately 17,000 and has hosted some of Malta's most memorable footballing occasions." }] },
+  { _type: "block", _key: "s2", style: "normal", children: [{ _type: "span", text: "The club's training facility is located in Birkirkara and serves both the first team and the club's well-regarded youth academy." }] },
+];
+
+// ── Portable Text components ──────────────────────────────────────────────────
+
+const ptComponents: PortableTextComponents = {
+  block: {
+    normal: ({ children }) => (
+      <p className="text-white/65 text-base leading-relaxed">{children}</p>
+    ),
+  },
+  marks: {
+    strong: ({ children }) => (
+      <span className="text-white font-medium">{children}</span>
+    ),
+  },
+};
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+export default async function ClubPage() {
+  const data = await client
+    .fetch<SanityClubPage | null>(clubPageQuery)
+    .catch(() => null);
+
+  const historyBody = data?.historyBody?.length ? data.historyBody : fallbackHistory;
+  const honours = data?.honours?.length ? data.honours : fallbackHonours;
+  const stadiumBody = data?.stadiumBody?.length ? data.stadiumBody : fallbackStadium;
+
   return (
     <main className="flex-1 bg-background">
       {/* Page header */}
@@ -28,19 +87,8 @@ export default function ClubPage() {
           <h2 className="font-display font-extrabold italic text-white uppercase text-3xl tracking-wide mb-6">
             Club History
           </h2>
-          <div className="space-y-5 text-white/65 text-base leading-relaxed">
-            <p>
-              Birkirkara FC was founded in 1950 in the town of Birkirkara, the most populous town on the island of Malta. The club quickly established itself as one of the cornerstones of Maltese football, rising through the divisions and reaching the top flight of Maltese football.
-            </p>
-            <p>
-              Known as <span className="text-white font-medium">The Stripes</span> for their distinctive red and white vertically striped kit, Birkirkara became one of the dominant forces in the Maltese Premier League during the 2000s and 2010s, winning the league title on seven occasions.
-            </p>
-            <p>
-              The club has represented Malta in UEFA club competition on numerous occasions, competing in the UEFA Champions League qualifying rounds and the UEFA Europa League, showcasing Maltese football on the European stage.
-            </p>
-            <p>
-              Birkirkara has been central to the development of Maltese football talent, producing numerous players who have gone on to represent the Maltese national team. The club's academy continues to be one of the most respected in the country.
-            </p>
+          <div className="space-y-5">
+            <PortableText value={historyBody} components={ptComponents} />
           </div>
         </section>
 
@@ -56,7 +104,7 @@ export default function ClubPage() {
                   {h.title}
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {h.years.map((year) => (
+                  {(h.years ?? []).map((year) => (
                     <span
                       key={year}
                       className="text-white/70 text-sm border border-white/15 px-3 py-1"
@@ -75,13 +123,8 @@ export default function ClubPage() {
           <h2 className="font-display font-extrabold italic text-white uppercase text-3xl tracking-wide mb-6">
             Stadium
           </h2>
-          <div className="bg-surface p-6 text-white/65 text-base leading-relaxed space-y-4">
-            <p>
-              Birkirkara FC play their home matches at the <span className="text-white font-medium">Centenary Stadium</span> in Ta' Qali, Malta, which is also the national stadium of Malta. The stadium has a capacity of approximately 17,000 and has hosted some of Malta's most memorable footballing occasions.
-            </p>
-            <p>
-              The club's training facility is located in Birkirkara and serves both the first team and the club's well-regarded youth academy.
-            </p>
+          <div className="bg-surface p-6 space-y-4">
+            <PortableText value={stadiumBody} components={ptComponents} />
           </div>
         </section>
       </div>

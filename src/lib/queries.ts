@@ -63,5 +63,20 @@ export const playerByNumberQuery = groq`
 
 export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0]{
-    clubName, crest, founded, facebook, instagram, twitter
+    clubName, crest, founded, seasonLabel, facebook, instagram, twitter
+  }`
+
+export const clubPageQuery = groq`
+  *[_type == "clubPage"][0]{
+    historyBody, honours, stadiumBody
+  }`
+
+export const allMembershipsQuery = groq`
+  *[_type == "membership" && active != false] | order(order asc, price asc){
+    name, price, period, features, highlight, description
+  }`
+
+export const allGalleryItemsQuery = groq`
+  *[_type == "galleryItem"] | order(order asc){
+    title, image, aspectRatio
   }`

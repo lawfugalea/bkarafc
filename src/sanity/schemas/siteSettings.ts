@@ -25,6 +25,13 @@ export const siteSettings = defineType({
       initialValue: '1950',
     }),
     defineField({
+      name: 'seasonLabel',
+      title: 'Season Label',
+      type: 'string',
+      description: 'Shown in the navbar topbar. e.g. "2024/25 Season · Maltese Premier League"',
+      initialValue: '2024/25 Season · Maltese Premier League',
+    }),
+    defineField({
       name: 'facebook',
       title: 'Facebook URL',
       type: 'url',

@@ -95,12 +95,13 @@ function HamburgerIcon({ open }: { open: boolean }) {
 
 interface NavbarProps {
   crestUrl?: string;
+  seasonLabel?: string;
   facebook?: string;
   instagram?: string;
   twitter?: string;
 }
 
-export default function Navbar({ crestUrl, facebook, instagram, twitter }: NavbarProps) {
+export default function Navbar({ crestUrl, seasonLabel, facebook, instagram, twitter }: NavbarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -112,7 +113,7 @@ export default function Navbar({ crestUrl, facebook, instagram, twitter }: Navba
     <header className="sticky top-0 z-50">
       {/* Topbar — hidden on mobile */}
       <div className="hidden md:flex bg-surface border-b border-white/10 px-6 py-1.5 items-center justify-between text-xs text-white/50">
-        <span className="tracking-wide">2024/25 Season · Maltese Premier League</span>
+        <span className="tracking-wide">{seasonLabel ?? '2024/25 Season · Maltese Premier League'}</span>
         <div className="flex items-center gap-5">
           <a
             href={facebook || "#"}

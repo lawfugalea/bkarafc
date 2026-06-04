@@ -1,6 +1,29 @@
+import Image from "next/image";
 import Footer from "@/components/Footer";
+import { client, urlFor } from "@/lib/sanity.client";
+import { allGalleryItemsQuery } from "@/lib/queries";
 
-const items = [
+export const revalidate = 60;
+
+interface SanityImage {
+  asset: { _ref: string };
+}
+
+interface SanityGalleryItem {
+  title: string;
+  image: SanityImage;
+  aspectRatio?: string;
+}
+
+const aspectClass: Record<string, string> = {
+  "4/3": "aspect-[4/3]",
+  "1/1": "aspect-square",
+  "3/4": "aspect-[3/4]",
+};
+
+// ── Fallback (shown when no gallery items in Sanity yet) ──────────────────────
+
+const fallbackItems = [
   { id: 1, label: "Matchday vs Valletta", aspect: "aspect-[4/3]" },
   { id: 2, label: "Training Session", aspect: "aspect-square" },
   { id: 3, label: "Goal Celebration", aspect: "aspect-[3/4]" },
@@ -9,13 +32,15 @@ const items = [
   { id: 6, label: "Fan Day", aspect: "aspect-[4/3]" },
   { id: 7, label: "Keeper Training", aspect: "aspect-square" },
   { id: 8, label: "Away at Floriana", aspect: "aspect-[4/3]" },
-  { id: 9, label: "Kit Launch", aspect: "aspect-[3/4]" },
-  { id: 10, label: "Europa League Qualifier", aspect: "aspect-[4/3]" },
-  { id: 11, label: "Academy Finals", aspect: "aspect-square" },
-  { id: 12, label: "Matchday Atmosphere", aspect: "aspect-[3/4]" },
 ];
 
-export default function GalleryPage() {
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+export default async function GalleryPage() {
+  const items = await client
+    .fetch<SanityGalleryItem[]>(allGalleryItemsQuery)
+    .catch(() => [] as SanityGalleryItem[]);
+
   return (
     <main className="flex-1 bg-background">
       {/* Page header */}
@@ -31,25 +56,52 @@ export default function GalleryPage() {
       </section>
 
       <section className="max-w-7xl mx-auto px-6 py-14">
-        {/* CSS columns masonry */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-0">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="break-inside-avoid mb-4 bg-surface group cursor-pointer overflow-hidden"
-            >
+        {items.length > 0 ? (
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4">
+            {items.map((item, i) => {
+              const aspect = aspectClass[item.aspectRatio ?? "4/3"] ?? "aspect-[4/3]";
+              const imgUrl = urlFor(item.image).width(800).url();
+              return (
+                <div
+                  key={i}
+                  className="break-inside-avoid mb-4 bg-surface group cursor-pointer overflow-hidden"
+                >
+                  <div className={`${aspect} relative overflow-hidden`}>
+                    <Image
+                      src={imgUrl}
+                      alt={item.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-bka-red/0 group-hover:bg-bka-red/10 transition-colors duration-200" />
+                  </div>
+                  <div className="px-3 py-2">
+                    <span className="text-white/40 text-xs">{item.title}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* Placeholder grid shown until gallery items are added in Sanity */
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4">
+            {fallbackItems.map((item) => (
               <div
-                className={`${item.aspect} bg-[#1c1c1c] flex items-center justify-center relative`}
+                key={item.id}
+                className="break-inside-avoid mb-4 bg-surface group cursor-pointer overflow-hidden"
               >
-                <span className="text-white/15 text-xs uppercase tracking-widest">Image</span>
-                <div className="absolute inset-0 bg-bka-red/0 group-hover:bg-bka-red/10 transition-colors duration-200" />
+                <div className={`${item.aspect} bg-[#1c1c1c] flex items-center justify-center relative`}>
+                  <span className="text-white/15 text-xs uppercase tracking-widest">Image</span>
+                  <div className="absolute inset-0 bg-bka-red/0 group-hover:bg-bka-red/10 transition-colors duration-200" />
+                </div>
+                <div className="px-3 py-2">
+                  <span className="text-white/40 text-xs">{item.label}</span>
+                </div>
               </div>
-              <div className="px-3 py-2">
-                <span className="text-white/40 text-xs">{item.label}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <Footer />
