@@ -1,8 +1,13 @@
+import Image from "next/image";
 import Footer from "@/components/Footer";
-import { client } from "@/lib/sanity.client";
+import { client, urlFor } from "@/lib/sanity.client";
 import { allMembershipsQuery, siteSettingsQuery } from "@/lib/queries";
 
 export const revalidate = 60;
+
+interface SanityImage {
+  asset: { _ref: string };
+}
 
 interface SanityMembership {
   name: string;
@@ -39,6 +44,86 @@ const fallbackTiers: SanityMembership[] = [
   },
 ];
 
+function cleanTierName(name: string) {
+  return name.replace(/\s*2026\/27\s*/i, "").trim();
+}
+
+function cardTheme(name: string, highlighted?: boolean) {
+  const lower = name.toLowerCase();
+
+  if (lower.includes("platinum")) {
+    return "from-zinc-100 via-zinc-300 to-zinc-500 text-black";
+  }
+
+  if (lower.includes("corporate")) {
+    return "from-[#3b2600] via-bka-gold to-[#9a6a0a] text-black";
+  }
+
+  if (lower.includes("gold") || highlighted) {
+    return "from-[#b87310] via-bka-gold to-[#ffe199] text-black";
+  }
+
+  if (lower.includes("junior")) {
+    return "from-bka-red via-[#e94b4b] to-bka-gold text-white";
+  }
+
+  return "from-[#88111c] via-bka-red to-bka-gold text-white";
+}
+
+function MembershipCardPreview({
+  tier,
+  seasonLabel,
+  crest,
+}: {
+  tier: SanityMembership;
+  seasonLabel: string;
+  crest?: SanityImage;
+}) {
+  const tierName = cleanTierName(tier.name);
+  const isLight = tier.name.toLowerCase().includes("gold") || tier.name.toLowerCase().includes("platinum") || tier.name.toLowerCase().includes("corporate");
+
+  return (
+    <div className="mb-7 rounded-[22px] bg-black/25 p-3 shadow-2xl shadow-black/30">
+      <div
+        className={`relative aspect-[1.58/1] overflow-hidden rounded-[18px] bg-gradient-to-br ${cardTheme(
+          tier.name,
+          tier.highlight,
+        )} p-5 ring-1 ring-white/30`}
+      >
+        <div className="absolute inset-0 opacity-35 bg-[linear-gradient(135deg,transparent_0%,rgba(255,255,255,0.35)_45%,transparent_46%),radial-gradient(circle_at_85%_20%,rgba(255,255,255,0.45),transparent_20%)]" />
+        <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full border border-white/35" />
+        <div className="absolute -right-5 top-12 h-16 w-16 rounded-full border border-white/30" />
+
+        <div className="relative flex h-full flex-col items-center justify-center text-center">
+          <div className="mb-3 grid h-14 w-14 place-items-center rounded-full bg-white/90 p-1.5 shadow-lg shadow-black/20">
+            {crest ? (
+              <Image
+                src={urlFor(crest).width(96).height(96).url()}
+                alt="Birkirkara FC crest"
+                width={48}
+                height={48}
+                className="h-full w-full object-contain"
+              />
+            ) : (
+              <span className="font-display text-xl font-black italic text-bka-red">B</span>
+            )}
+          </div>
+
+          <div className={`font-display text-2xl font-extrabold italic uppercase tracking-wide ${isLight ? "text-black" : "text-white"}`}>
+            Birkirkara FC
+          </div>
+          <div className={`mt-1 text-[10px] font-bold uppercase tracking-[0.28em] ${isLight ? "text-black/65" : "text-white/75"}`}>
+            Revived | Refined | Ready
+          </div>
+          <div className={`mt-2 text-[10px] font-extrabold uppercase tracking-[0.22em] ${isLight ? "text-black/70" : "text-white/85"}`}>
+            {tierName} · {seasonLabel}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function MembershipsPage() {
@@ -68,20 +153,22 @@ export default async function MembershipsPage() {
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-6 py-14">
+      <section className="max-w-7xl mx-auto px-6 py-14">
         {roster.length === 0 ? (
           <p className="text-white/40 text-center py-20">No memberships available at this time.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {roster.map((tier, i) => (
               <div
                 key={tier.name}
                 data-animate
                 data-animate-delay={String(i * 100)}
-                className={`flex flex-col p-8 transition-transform duration-200 hover:-translate-y-1 ${
+                className={`flex flex-col p-7 transition-transform duration-200 hover:-translate-y-1 ${
                   tier.highlight ? "bg-bka-red" : "bg-surface border border-white/10"
                 }`}
               >
+                <MembershipCardPreview tier={tier} seasonLabel={seasonLabel} crest={settings?.crest} />
+
                 <div className="font-display font-extrabold italic uppercase text-2xl tracking-wide text-white mb-1">
                   {tier.name}
                 </div>
