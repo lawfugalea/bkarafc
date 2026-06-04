@@ -134,12 +134,15 @@ const resultBadgeClass = {
 export default async function Home() {
   const [featuredPost, recentPosts, nextFixture, recentResults, squadPlayers] =
     await Promise.all([
-      client.fetch<SanityPost | null>(featuredPostQuery).catch(() => null),
-      client.fetch<SanityPost[]>(recentPostsQuery).catch(() => []),
-      client.fetch<SanityFixture | null>(nextFixtureQuery).catch(() => null),
-      client.fetch<SanityFixture[]>(recentResultsQuery).catch(() => []),
-      client.fetch<SanityPlayer[]>(squadPreviewQuery).catch(() => []),
+      client.fetch<SanityPost | null>(featuredPostQuery).catch((e) => { console.error('[Sanity] featuredPost:', e); return null; }),
+      client.fetch<SanityPost[]>(recentPostsQuery).catch((e) => { console.error('[Sanity] recentPosts:', e); return []; }),
+      client.fetch<SanityFixture | null>(nextFixtureQuery).catch((e) => { console.error('[Sanity] nextFixture:', e); return null; }),
+      client.fetch<SanityFixture[]>(recentResultsQuery).catch((e) => { console.error('[Sanity] recentResults:', e); return []; }),
+      client.fetch<SanityPlayer[]>(squadPreviewQuery).catch((e) => { console.error('[Sanity] squadPlayers:', e); return []; }),
     ]);
+
+  // TODO: remove before ship — verifies Sanity is returning data
+  console.log('[Sanity] raw results:', JSON.stringify({ featuredPost, recentPosts, nextFixture, recentResults, squadPlayers }, null, 2));
 
   // Normalize: next match
   const nextMatch = nextFixture
