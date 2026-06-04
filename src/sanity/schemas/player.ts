@@ -27,6 +27,7 @@ export const player = defineType({
       options: {hotspot: true},
       fields: [{name: 'alt', title: 'Alt text', type: 'string'}],
     }),
+    defineField({name: 'nationality', title: 'Nationality', type: 'string'}),
     defineField({name: 'bio', title: 'Bio', type: 'text', rows: 4}),
     defineField({name: 'order', title: 'Display order', type: 'number', initialValue: 0}),
   ],

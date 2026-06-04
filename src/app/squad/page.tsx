@@ -1,47 +1,56 @@
+import Image from "next/image";
 import Footer from "@/components/Footer";
+import { client, urlFor } from "@/lib/sanity.client";
+import { allPlayersQuery } from "@/lib/queries";
 
 export const revalidate = 60;
 
-const positions = [
-  {
-    label: "Goalkeepers",
-    players: [
-      { number: 1, name: "Justin Haber", nationality: "Malta" },
-      { number: 13, name: "Matthew Callus", nationality: "Malta" },
-    ],
-  },
-  {
-    label: "Defenders",
-    players: [
-      { number: 2, name: "Kyle Azzopardi", nationality: "Malta" },
-      { number: 3, name: "Diego Aguiar", nationality: "Brazil" },
-      { number: 4, name: "Ivan Woods", nationality: "Malta" },
-      { number: 5, name: "Joseph Borg", nationality: "Malta" },
-      { number: 16, name: "Stefan Cassar", nationality: "Malta" },
-    ],
-  },
-  {
-    label: "Midfielders",
-    players: [
-      { number: 6, name: "Robert Muscat", nationality: "Malta" },
-      { number: 7, name: "Ryan Darmanin", nationality: "Malta" },
-      { number: 8, name: "Joseph Zerafa", nationality: "Malta" },
-      { number: 10, name: "Paul Fenech", nationality: "Malta" },
-      { number: 17, name: "Ayrton Attard", nationality: "Malta" },
-    ],
-  },
-  {
-    label: "Forwards",
-    players: [
-      { number: 9, name: "Jhonnattan", nationality: "Brazil" },
-      { number: 11, name: "Edward Herrera", nationality: "Spain" },
-      { number: 14, name: "Triston Caruana", nationality: "Malta" },
-      { number: 19, name: "Luke Montebello", nationality: "Malta" },
-    ],
-  },
+interface SanityImage {
+  asset: { _ref: string };
+}
+
+interface SanityPlayer {
+  name: string;
+  number: number;
+  position: string;
+  nationality?: string;
+  photo?: SanityImage;
+  bio?: string;
+}
+
+const positionGroups = [
+  { label: "Goalkeepers", key: "Goalkeeper" },
+  { label: "Defenders", key: "Defender" },
+  { label: "Midfielders", key: "Midfielder" },
+  { label: "Forwards", key: "Forward" },
 ];
 
-export default function SquadPage() {
+const fallbackPlayers: SanityPlayer[] = [
+  { number: 1, name: "Justin Haber", position: "Goalkeeper", nationality: "Malta" },
+  { number: 13, name: "Matthew Callus", position: "Goalkeeper", nationality: "Malta" },
+  { number: 2, name: "Kyle Azzopardi", position: "Defender", nationality: "Malta" },
+  { number: 3, name: "Diego Aguiar", position: "Defender", nationality: "Brazil" },
+  { number: 4, name: "Ivan Woods", position: "Defender", nationality: "Malta" },
+  { number: 5, name: "Joseph Borg", position: "Defender", nationality: "Malta" },
+  { number: 16, name: "Stefan Cassar", position: "Defender", nationality: "Malta" },
+  { number: 6, name: "Robert Muscat", position: "Midfielder", nationality: "Malta" },
+  { number: 7, name: "Ryan Darmanin", position: "Midfielder", nationality: "Malta" },
+  { number: 8, name: "Joseph Zerafa", position: "Midfielder", nationality: "Malta" },
+  { number: 10, name: "Paul Fenech", position: "Midfielder", nationality: "Malta" },
+  { number: 17, name: "Ayrton Attard", position: "Midfielder", nationality: "Malta" },
+  { number: 9, name: "Jhonnattan", position: "Forward", nationality: "Brazil" },
+  { number: 11, name: "Edward Herrera", position: "Forward", nationality: "Spain" },
+  { number: 14, name: "Triston Caruana", position: "Forward", nationality: "Malta" },
+  { number: 19, name: "Luke Montebello", position: "Forward", nationality: "Malta" },
+];
+
+export default async function SquadPage() {
+  const players = await client
+    .fetch<SanityPlayer[]>(allPlayersQuery)
+    .catch(() => [] as SanityPlayer[]);
+
+  const roster = players.length > 0 ? players : fallbackPlayers;
+
   return (
     <main className="flex-1 bg-background">
       {/* Page header */}
@@ -57,40 +66,56 @@ export default function SquadPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-6 py-14 space-y-14">
-        {positions.map((group) => (
-          <section key={group.label}>
-            <h2 className="font-display font-extrabold italic text-bka-gold uppercase text-2xl tracking-widest mb-6 border-b border-white/10 pb-3">
-              {group.label}
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {group.players.map((player) => (
-                <a
-                  key={player.number}
-                  href={`/squad/${player.number}`}
-                  className="bg-surface group block relative overflow-hidden"
-                >
-                  <div className="aspect-[3/4] bg-[#1c1c1c] flex items-center justify-center relative">
-                    <span className="text-white/10 text-xs uppercase tracking-widest absolute">
-                      Photo
-                    </span>
-                    <span className="font-display font-extrabold italic text-bka-gold text-5xl absolute top-3 right-3 leading-none">
-                      {player.number}
-                    </span>
-                  </div>
-                  <div className="p-3">
-                    <div className="text-white/40 text-[10px] uppercase tracking-widest">
-                      {group.label.slice(0, -1)}
+        {positionGroups.map((group) => {
+          const groupPlayers = roster.filter((p) => p.position === group.key);
+          if (groupPlayers.length === 0) return null;
+          return (
+            <section key={group.key}>
+              <h2 className="font-display font-extrabold italic text-bka-gold uppercase text-2xl tracking-widest mb-6 border-b border-white/10 pb-3">
+                {group.label}
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {groupPlayers.map((player) => (
+                  <a
+                    key={player.number}
+                    href={`/squad/${player.number}`}
+                    className="bg-surface group block relative overflow-hidden"
+                  >
+                    <div className="aspect-[3/4] bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
+                      {player.photo ? (
+                        <Image
+                          src={urlFor(player.photo).width(400).height(533).url()}
+                          alt={player.name}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <span className="text-white/10 text-xs uppercase tracking-widest absolute">
+                          Photo
+                        </span>
+                      )}
+                      <span className="font-display font-extrabold italic text-bka-gold text-5xl absolute top-3 right-3 leading-none drop-shadow-lg">
+                        {player.number}
+                      </span>
                     </div>
-                    <div className="text-white font-semibold text-sm mt-0.5 group-hover:text-bka-gold transition-colors">
-                      {player.name}
+                    <div className="p-3">
+                      <div className="text-white/40 text-[10px] uppercase tracking-widest">
+                        {group.label.slice(0, -1)}
+                      </div>
+                      <div className="text-white font-semibold text-sm mt-0.5 group-hover:text-bka-gold transition-colors">
+                        {player.name}
+                      </div>
+                      {player.nationality && (
+                        <div className="text-white/30 text-[10px] mt-0.5">{player.nationality}</div>
+                      )}
                     </div>
-                    <div className="text-white/30 text-[10px] mt-0.5">{player.nationality}</div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </section>
-        ))}
+                  </a>
+                ))}
+              </div>
+            </section>
+          );
+        })}
       </div>
 
       <Footer />

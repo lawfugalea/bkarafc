@@ -41,6 +41,16 @@ export const squadPreviewQuery = groq`
     name, number, position, photo
   }`
 
+export const allPlayersQuery = groq`
+  *[_type == "player"] | order(order asc, number asc){
+    name, number, position, nationality, photo, bio
+  }`
+
+export const playerByNumberQuery = groq`
+  *[_type == "player" && number == $number][0]{
+    name, number, position, nationality, photo, bio
+  }`
+
 export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0]{
     clubName, crest, founded, facebook, instagram, twitter
