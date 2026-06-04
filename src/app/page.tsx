@@ -316,7 +316,7 @@ export default async function Home() {
       <section className="bg-surface border-b-2 border-bka-gold animate-slide-down">
         <div className="max-w-7xl mx-auto flex items-stretch min-h-[80px]">
           {/* Red / gold / red kit stripe accent */}
-          <div className="flex flex-col w-[3px] shrink-0" aria-hidden="true">
+          <div className="flex flex-col w-[5px] shrink-0" aria-hidden="true">
             <div className="flex-1 bg-bka-red" />
             <div className="flex-1 bg-bka-gold" />
             <div className="flex-1 bg-bka-red" />
@@ -390,7 +390,13 @@ export default async function Home() {
                 data-animate
                 data-animate-delay={String(200 + i * 75)}
               >
-                <a href={item.href} className="card-interactive bg-surface group overflow-hidden">
+                {/* Alternating red/gold 3px left border */}
+                <a
+                  href={item.href}
+                  className={`card-interactive bg-surface group overflow-hidden border-l-[3px] ${
+                    i % 2 === 0 ? 'border-bka-red' : 'border-bka-gold'
+                  }`}
+                >
                   <div className="aspect-video bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
                     {item.coverImage ? (
                       <Image
@@ -415,7 +421,6 @@ export default async function Home() {
                     </h3>
                     <div className="text-white/30 text-[11px] mt-3">{item.date}</div>
                   </div>
-                  <div className="h-[3px] bg-bka-red scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                 </a>
               </div>
             ))}
@@ -424,8 +429,8 @@ export default async function Home() {
       </section>
 
       {/* ── Results strip ────────────────────────────────────── */}
-      <section className="bg-surface py-10 stripe-section">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <section className="bg-surface py-10">
+        <div className="max-w-7xl mx-auto px-6">
           <h2 data-animate className="heading-accent font-display font-extrabold italic text-white uppercase text-3xl mb-8 tracking-wide">
             Recent Results
           </h2>
@@ -509,7 +514,11 @@ export default async function Home() {
       </section>
 
       {/* ── Membership CTA ───────────────────────────────────── */}
-      <section data-animate className="cta-gradient border-l-4 border-bka-gold mx-6 max-w-7xl lg:mx-auto mb-16 px-8 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+      <section
+        data-animate
+        className="border-l-4 border-bka-gold mx-6 max-w-7xl lg:mx-auto mb-16 px-8 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6"
+        style={{ background: 'linear-gradient(110deg, #1a0508, #120606 50%, #0d0d0d)' }}
+      >
         <div>
           <div className="text-bka-gold text-xs font-semibold uppercase tracking-widest mb-2">
             {cta.season}

@@ -22,10 +22,7 @@ export default function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
   }, [])
 
   const advance = useCallback(() => {
-    setCurrent((c) => {
-      const next = (c + 1) % slides.length
-      return next
-    })
+    setCurrent((c) => (c + 1) % slides.length)
     setAnimKey((k) => k + 1)
   }, [slides.length])
 
@@ -41,6 +38,7 @@ export default function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
+      {/* Slide backgrounds */}
       {slides.map((slide, i) => (
         <div
           key={i}
@@ -51,7 +49,6 @@ export default function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
             pointerEvents: i === current ? 'auto' : 'none',
           }}
         >
-          {/* Cover image */}
           {slide.imageUrl && (
             <Image
               src={slide.imageUrl}
@@ -62,52 +59,76 @@ export default function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
               className="object-cover"
             />
           )}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(to top, rgba(8,8,8,0.95), rgba(8,8,8,0.4) 50%, rgba(8,8,8,0.5))',
+            }}
+          />
+        </div>
+      ))}
 
-          {/* Dark overlay */}
-          <div className="absolute inset-0 bg-black/50" />
-
-          {/* Content — re-mounts on each transition so CSS animations replay */}
-          {i === current && (
-            <div
-              key={animKey}
-              className="relative z-10 max-w-7xl mx-auto px-6 min-h-[580px] flex flex-col justify-end pb-20"
-            >
-              <span
-                className="hero-item inline-block bg-bka-red text-white text-xs font-semibold uppercase tracking-widest px-3 py-1.5 mb-5 w-fit"
+      {/* Bottom-left content — re-mounts on each transition so stagger replays */}
+      {slides.map((slide, i) =>
+        i !== current ? null : (
+          <div
+            key={animKey}
+            className="absolute bottom-0 left-0 right-0 z-10 pb-14"
+          >
+            <div className="max-w-7xl mx-auto px-6">
+              {/* Eyebrow — gold category + date */}
+              <div
+                className="hero-item flex items-center gap-3 mb-3"
                 style={{ animationDelay: '0.05s' }}
               >
-                {slide.category}
-              </span>
+                <span className="text-bka-gold text-xs font-semibold uppercase tracking-widest">
+                  {slide.category}
+                </span>
+                <span className="text-bka-gold/40">·</span>
+                <span className="text-bka-gold/60 text-xs uppercase tracking-wider">
+                  {slide.date}
+                </span>
+              </div>
 
+              {/* Headline — ~46px, max-width 600px */}
               <h2
-                className="hero-item font-display font-extrabold italic uppercase text-white leading-[0.9] text-[clamp(2.5rem,6vw,5.5rem)] max-w-4xl mb-4"
-                style={{ animationDelay: '0.2s' }}
+                className="hero-item font-display font-extrabold italic uppercase text-white leading-[0.92] mb-6"
+                style={{
+                  fontSize: 'clamp(1.75rem, 3.5vw, 2.875rem)',
+                  maxWidth: '600px',
+                  animationDelay: '0.18s',
+                }}
               >
                 {slide.title}
               </h2>
 
+              {/* Buttons */}
               <div
-                className="hero-item text-white/60 text-sm mb-6 uppercase tracking-wider"
-                style={{ animationDelay: '0.35s' }}
+                className="hero-item flex flex-wrap gap-3"
+                style={{ animationDelay: '0.32s' }}
               >
-                {slide.date}
+                <a
+                  href={slide.href}
+                  className="bg-bka-red text-white font-semibold uppercase tracking-wider text-sm px-7 py-2.5 hover:bg-[#b00217] transition-colors"
+                >
+                  Read More
+                </a>
+                <a
+                  href="/news"
+                  className="border border-white/30 text-white/80 font-semibold uppercase tracking-wider text-sm px-7 py-2.5 hover:border-white/60 hover:text-white transition-colors"
+                >
+                  All News
+                </a>
               </div>
-
-              <a
-                href={slide.href}
-                className="hero-item bg-bka-red text-white font-semibold uppercase tracking-wider text-sm px-8 py-3 hover:bg-[#b00217] transition-colors w-fit"
-                style={{ animationDelay: '0.45s' }}
-              >
-                Read More
-              </a>
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        )
+      )}
 
-      {/* Dot / pill indicators */}
+      {/* Dots — bottom-right, gold = active */}
       {slides.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+        <div className="absolute bottom-6 right-6 flex items-center gap-2 z-20">
           {slides.map((_, i) => (
             <button
               key={i}
@@ -116,12 +137,24 @@ export default function HeroCarousel({ slides }: { slides: CarouselSlide[] }) {
               className={`h-2 rounded-full transition-all duration-300 ${
                 i === current
                   ? 'w-8 bg-bka-gold'
-                  : 'w-2 bg-white/40 hover:bg-white/70'
+                  : 'w-2 bg-white/30 hover:bg-white/50'
               }`}
             />
           ))}
         </div>
       )}
+
+      {/* Diagonal red/gold stripe accent — bottom-right edge */}
+      <div
+        aria-hidden="true"
+        className="absolute bottom-0 right-0 z-20"
+        style={{
+          width: '160px',
+          height: '6px',
+          background: 'linear-gradient(to right, #D0021B 60%, #F5A623 60%)',
+          clipPath: 'polygon(24px 0, 100% 0, 100% 100%, 0 100%)',
+        }}
+      />
     </section>
   )
 }

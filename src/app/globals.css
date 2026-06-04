@@ -38,7 +38,6 @@ main {
 
 /* ── Scroll-triggered fade-up ────────────────────────────────────────────── */
 /* Only hide elements once JS confirms it's running (.js-ready on <html>).   */
-/* Without JS, all content stays visible (progressive enhancement).          */
 
 .js-ready [data-animate] {
   opacity: 0;
@@ -62,48 +61,16 @@ main {
   animation: hero-item-in 0.5s ease both;
 }
 
-/* ── Section heading accent bar ─────────────────────────────────────────── */
-/* Red 60px × 4px underline that appears below every section title.         */
+/* ── Section heading accent bar — red-to-gold split ─────────────────────── */
+/* 54px wide, 4px tall. Red occupies 3/5 (60%), gold occupies 2/5 (40%).    */
 
 .heading-accent::after {
   content: '';
   display: block;
-  width: 60px;
+  width: 54px;
   height: 4px;
-  background: #D0021B;
+  background: linear-gradient(to right, #D0021B 60%, #F5A623 60%);
   margin-top: 10px;
-}
-
-/* ── Vertical stripe motif (Recent Results section) ─────────────────────── */
-/* Echoes the club's red-and-yellow striped kit. Kept very subtle.           */
-
-.stripe-section {
-  position: relative;
-}
-
-.stripe-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(
-    90deg,
-    #D0021B 0px,
-    #D0021B 8px,
-    transparent 8px,
-    transparent 20px,
-    #F5A623 20px,
-    #F5A623 26px,
-    transparent 26px,
-    transparent 38px
-  );
-  opacity: 0.035;
-}
-
-/* ── Membership CTA gradient ─────────────────────────────────────────────── */
-
-.cta-gradient {
-  background: linear-gradient(135deg, rgba(208, 2, 27, 0.14) 0%, #111111 55%);
 }
 
 /* ── Card hover lift (inner element — avoids conflict with data-animate) ── */
