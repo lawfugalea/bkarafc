@@ -1,8 +1,8 @@
+import Image from "next/image";
 import Footer from "@/components/Footer";
-import { client } from "@/lib/sanity.client";
-
-export const revalidate = 60;
+import { client, urlFor } from "@/lib/sanity.client";
 import {
+  homepageQuery,
   featuredPostQuery,
   recentPostsQuery,
   nextFixtureQuery,
@@ -10,12 +10,19 @@ import {
   squadPreviewQuery,
 } from "@/lib/queries";
 
-// ── Sanity field types ────────────────────────────────────────────────────────
+export const revalidate = 60;
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface SanityImage {
+  asset: { _ref: string };
+}
 
 interface SanityPost {
   title: string;
   slug: { current: string };
   category: string;
+  coverImage?: SanityImage;
   excerpt?: string;
   publishedAt: string;
 }
@@ -36,21 +43,32 @@ interface SanityPlayer {
   position: string;
 }
 
-// ── Formatting helpers ────────────────────────────────────────────────────────
+interface SanityHomepage {
+  heroSeasonLabel?: string;
+  heroLine1?: string;
+  heroLine2?: string;
+  heroSubline?: string;
+  membershipSeason?: string;
+  membershipHeading?: string;
+  membershipBody?: string;
+  membershipButtonLabel?: string;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const catLabel: Record<string, string> = {
   "match-report": "Match Report",
   "club-news": "Club",
-  "transfer": "Transfer",
-  "academy": "Academy",
-  "interview": "Interview",
+  transfer: "Transfer",
+  academy: "Academy",
+  interview: "Interview",
 };
 
 const compLabel: Record<string, string> = {
   MPL: "Premier League",
   "FA Trophy": "FA Trophy",
   "Super Cup": "Super Cup",
-  "Friendly": "Friendly",
+  Friendly: "Friendly",
 };
 
 const posAbbr: Record<string, string> = {
@@ -83,7 +101,7 @@ function fmtKickoff(iso: string) {
   };
 }
 
-// ── Fallbacks (used when Sanity returns empty) ────────────────────────────────
+// ── Fallbacks ─────────────────────────────────────────────────────────────────
 
 const fallbackNextMatch = {
   home: "Birkirkara FC",
@@ -100,13 +118,14 @@ const fallbackFeatured = {
   excerpt:
     "A stoppage-time goal from captain Jhonnattan secured all three points in a pulsating derby clash at the National Stadium.",
   date: "2 Jun 2025",
+  coverImage: undefined as SanityImage | undefined,
 };
 
 const fallbackSmallCards = [
-  { href: "/news", category: "Transfer", title: "Club signs midfielder on season-long loan", date: "1 Jun 2025" },
-  { href: "/news", category: "Academy", title: "U17s reach national cup semi-final", date: "31 May 2025" },
-  { href: "/news", category: "Club", title: "Annual general meeting scheduled for July", date: "30 May 2025" },
-  { href: "/news", category: "Match Report", title: "Draw away to Floriana maintains top-four spot", date: "28 May 2025" },
+  { href: "/news", category: "Transfer", title: "Club signs midfielder on season-long loan", date: "1 Jun 2025", coverImage: undefined as SanityImage | undefined },
+  { href: "/news", category: "Academy", title: "U17s reach national cup semi-final", date: "31 May 2025", coverImage: undefined as SanityImage | undefined },
+  { href: "/news", category: "Club", title: "Annual general meeting scheduled for July", date: "30 May 2025", coverImage: undefined as SanityImage | undefined },
+  { href: "/news", category: "Match Report", title: "Draw away to Floriana maintains top-four spot", date: "28 May 2025", coverImage: undefined as SanityImage | undefined },
 ];
 
 const fallbackResults = [
@@ -132,17 +151,32 @@ const resultBadgeClass = {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function Home() {
-  const [featuredPost, recentPosts, nextFixture, recentResults, squadPlayers] =
+  const [homepageData, featuredPost, recentPosts, nextFixture, recentResults, squadPlayers] =
     await Promise.all([
-      client.fetch<SanityPost | null>(featuredPostQuery).catch((e) => { console.error('[Sanity] featuredPost:', e); return null; }),
-      client.fetch<SanityPost[]>(recentPostsQuery).catch((e) => { console.error('[Sanity] recentPosts:', e); return []; }),
-      client.fetch<SanityFixture | null>(nextFixtureQuery).catch((e) => { console.error('[Sanity] nextFixture:', e); return null; }),
-      client.fetch<SanityFixture[]>(recentResultsQuery).catch((e) => { console.error('[Sanity] recentResults:', e); return []; }),
-      client.fetch<SanityPlayer[]>(squadPreviewQuery).catch((e) => { console.error('[Sanity] squadPlayers:', e); return []; }),
+      client.fetch<SanityHomepage | null>(homepageQuery).catch(() => null),
+      client.fetch<SanityPost | null>(featuredPostQuery).catch(() => null),
+      client.fetch<SanityPost[]>(recentPostsQuery).catch(() => []),
+      client.fetch<SanityFixture | null>(nextFixtureQuery).catch(() => null),
+      client.fetch<SanityFixture[]>(recentResultsQuery).catch(() => []),
+      client.fetch<SanityPlayer[]>(squadPreviewQuery).catch(() => []),
     ]);
 
-  // TODO: remove before ship — verifies Sanity is returning data
-  console.log('[Sanity] raw results:', JSON.stringify({ featuredPost, recentPosts, nextFixture, recentResults, squadPlayers }, null, 2));
+  // Hero — Sanity values with hardcoded fallbacks
+  const hero = {
+    seasonLabel: homepageData?.heroSeasonLabel ?? "Live Season · Matchday 28",
+    line1: homepageData?.heroLine1 ?? "THE",
+    line2: homepageData?.heroLine2 ?? "STRIPES",
+    subline: homepageData?.heroSubline ?? "Birkirkara FC",
+  };
+
+  // Membership CTA — Sanity values with hardcoded fallbacks
+  const cta = {
+    season: homepageData?.membershipSeason ?? "2024/25 Season",
+    heading: homepageData?.membershipHeading ?? "Become a Member",
+    body: homepageData?.membershipBody ??
+      "Support the Stripes and get exclusive benefits — matchday tickets, merchandise discounts, and priority access to club events.",
+    buttonLabel: homepageData?.membershipButtonLabel ?? "Get Yours",
+  };
 
   // Normalize: next match
   const nextMatch = nextFixture
@@ -162,6 +196,7 @@ export default async function Home() {
         title: featuredPost.title,
         excerpt: featuredPost.excerpt ?? "",
         date: fmtDate(featuredPost.publishedAt),
+        coverImage: featuredPost.coverImage,
       }
     : fallbackFeatured;
 
@@ -173,6 +208,7 @@ export default async function Home() {
           category: catLabel[p.category] ?? p.category,
           title: p.title,
           date: fmtDate(p.publishedAt),
+          coverImage: p.coverImage,
         }))
       : fallbackSmallCards;
 
@@ -226,19 +262,19 @@ export default async function Home() {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-bka-red" />
             </span>
             <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
-              Live Season · Matchday 28
+              {hero.seasonLabel}
             </span>
           </div>
 
           <h1 className="font-display font-extrabold italic uppercase leading-none">
             <span className="block text-[clamp(4.5rem,13vw,10rem)] text-white leading-[0.9]">
-              THE
+              {hero.line1}
             </span>
             <span className="block text-[clamp(4.5rem,13vw,10rem)] text-white leading-[0.9]">
-              STRIPES
+              {hero.line2}
             </span>
             <span className="block text-[clamp(1.5rem,4vw,3rem)] text-bka-gold tracking-wide mt-2">
-              Birkirkara FC
+              {hero.subline}
             </span>
           </h1>
 
@@ -291,10 +327,20 @@ export default async function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Featured card — spans 2 columns */}
           <a href={featuredCard.href} className="lg:col-span-2 bg-surface group block">
-            <div className="aspect-video bg-[#1c1c1c] flex items-center justify-center">
-              <span className="text-white/15 text-xs uppercase tracking-widest">
-                Image
-              </span>
+            <div className="aspect-video bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
+              {featuredCard.coverImage ? (
+                <Image
+                  src={urlFor(featuredCard.coverImage).width(900).height(506).url()}
+                  alt={featuredCard.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              ) : (
+                <span className="text-white/15 text-xs uppercase tracking-widest">
+                  Image
+                </span>
+              )}
             </div>
             <div className="p-6">
               <span className="text-bka-red text-xs font-semibold uppercase tracking-wider">
@@ -313,14 +359,35 @@ export default async function Home() {
           {/* 2×2 smaller cards */}
           <div className="grid grid-cols-2 lg:grid-cols-2 gap-4">
             {smallCards.slice(0, 4).map((item) => (
-              <a key={item.href + item.title} href={item.href} className="bg-surface p-4 group block">
-                <span className="text-bka-red text-[10px] font-semibold uppercase tracking-wider">
-                  {item.category}
-                </span>
-                <h3 className="text-white font-semibold text-sm mt-1.5 leading-snug group-hover:text-bka-gold transition-colors">
-                  {item.title}
-                </h3>
-                <div className="text-white/30 text-[11px] mt-3">{item.date}</div>
+              <a
+                key={item.href + item.title}
+                href={item.href}
+                className="bg-surface group block overflow-hidden"
+              >
+                <div className="aspect-video bg-[#1c1c1c] relative overflow-hidden flex items-center justify-center">
+                  {item.coverImage ? (
+                    <Image
+                      src={urlFor(item.coverImage).width(400).height(225).url()}
+                      alt={item.title}
+                      fill
+                      sizes="25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <span className="text-white/10 text-[10px] uppercase tracking-widest">
+                      Image
+                    </span>
+                  )}
+                </div>
+                <div className="p-3">
+                  <span className="text-bka-red text-[10px] font-semibold uppercase tracking-wider">
+                    {item.category}
+                  </span>
+                  <h3 className="text-white font-semibold text-sm mt-1.5 leading-snug group-hover:text-bka-gold transition-colors">
+                    {item.title}
+                  </h3>
+                  <div className="text-white/30 text-[11px] mt-3">{item.date}</div>
+                </div>
               </a>
             ))}
           </div>
@@ -395,21 +462,20 @@ export default async function Home() {
       <section className="bg-surface border-l-4 border-bka-gold mx-6 max-w-7xl lg:mx-auto mb-16 px-8 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
           <div className="text-bka-gold text-xs font-semibold uppercase tracking-widest mb-2">
-            2024/25 Season
+            {cta.season}
           </div>
           <h2 className="font-display font-extrabold italic text-white uppercase text-3xl leading-tight">
-            Become a Member
+            {cta.heading}
           </h2>
           <p className="text-white/50 text-sm mt-2 max-w-md">
-            Support the Stripes and get exclusive benefits — matchday tickets, merchandise
-            discounts, and priority access to club events.
+            {cta.body}
           </p>
         </div>
         <a
           href="/memberships"
           className="shrink-0 bg-bka-gold hover:bg-[#e09415] text-background font-bold uppercase tracking-wider text-sm px-8 py-3 transition-colors whitespace-nowrap"
         >
-          Get Yours
+          {cta.buttonLabel}
         </a>
       </section>
 

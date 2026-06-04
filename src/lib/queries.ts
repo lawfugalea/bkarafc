@@ -1,5 +1,11 @@
 import {groq} from 'next-sanity'
 
+export const homepageQuery = groq`
+  *[_type == "homepage"][0]{
+    heroSeasonLabel, heroLine1, heroLine2, heroSubline,
+    membershipSeason, membershipHeading, membershipBody, membershipButtonLabel
+  }`
+
 export const featuredPostQuery = groq`
   *[_type == "post" && featured == true] | order(publishedAt desc)[0]{
     title, slug, category, coverImage, excerpt, publishedAt
@@ -8,6 +14,16 @@ export const featuredPostQuery = groq`
 export const recentPostsQuery = groq`
   *[_type == "post"] | order(publishedAt desc)[0...4]{
     title, slug, category, coverImage, publishedAt
+  }`
+
+export const allPostsQuery = groq`
+  *[_type == "post"] | order(publishedAt desc){
+    title, slug, category, coverImage, excerpt, publishedAt, featured
+  }`
+
+export const postBySlugQuery = groq`
+  *[_type == "post" && slug.current == $slug][0]{
+    title, slug, category, coverImage, excerpt, body, publishedAt
   }`
 
 export const nextFixtureQuery = groq`
