@@ -41,6 +41,7 @@ interface SanityPlayer {
   name: string;
   number: number;
   position: string;
+  photo?: SanityImage;
 }
 
 interface SanityHomepage {
@@ -136,10 +137,10 @@ const fallbackResults = [
 ];
 
 const fallbackSquad = [
-  { number: 1, name: "Justin Haber", position: "GK" },
-  { number: 4, name: "Ivan Woods", position: "DEF" },
-  { number: 9, name: "Jhonnattan", position: "FWD" },
-  { number: 10, name: "Paul Fenech", position: "MID" },
+  { number: 1, name: "Justin Haber", position: "GK", photo: undefined as SanityImage | undefined },
+  { number: 4, name: "Ivan Woods", position: "DEF", photo: undefined as SanityImage | undefined },
+  { number: 9, name: "Jhonnattan", position: "FWD", photo: undefined as SanityImage | undefined },
+  { number: 10, name: "Paul Fenech", position: "MID", photo: undefined as SanityImage | undefined },
 ];
 
 const resultBadgeClass = {
@@ -240,6 +241,7 @@ export default async function Home() {
           number: p.number,
           name: p.name,
           position: posAbbr[p.position] ?? p.position,
+          photo: p.photo,
         }))
       : fallbackSquad;
 
@@ -437,11 +439,21 @@ export default async function Home() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {squad.map((player) => (
             <a key={player.number} href="/squad" className="bg-surface group block relative overflow-hidden">
-              <div className="aspect-[3/4] bg-[#1c1c1c] flex items-end justify-center pb-4 relative">
-                <span className="text-white/10 text-xs uppercase tracking-widest absolute top-1/2 -translate-y-1/2">
-                  Photo
-                </span>
-                <span className="font-display font-extrabold italic text-bka-gold text-4xl absolute top-3 right-3 leading-none">
+              <div className="aspect-[3/4] bg-[#1c1c1c] relative overflow-hidden flex items-end justify-center pb-4">
+                {player.photo ? (
+                  <Image
+                    src={urlFor(player.photo).width(400).height(533).url()}
+                    alt={player.name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 25vw"
+                    className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <span className="text-white/10 text-xs uppercase tracking-widest absolute top-1/2 -translate-y-1/2">
+                    Photo
+                  </span>
+                )}
+                <span className="font-display font-extrabold italic text-bka-gold text-4xl absolute top-3 right-3 leading-none drop-shadow-lg z-10">
                   {player.number}
                 </span>
               </div>
